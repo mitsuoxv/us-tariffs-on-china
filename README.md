@@ -19,10 +19,8 @@ Mitsuo Shiota
   - [Chinese shares in HTS 8 digit imports by tariff schedule (2018) in
     pdf](output/chinese-shares2.pdf)
 
-I have downloaded three USTR documents which list 8 digit HTS
-(Harmonized Tariff Scedule of the United States) codes of goods to
-impose tariffs on imports from China. I put those pdf files in data
-directory. I extract 8 digit HTS codes from them.
+I extract 8 digit HTS (Harmonized Tariff Scedule of the United States)
+codes from the three USTR documents (pdf format) I download.
 
 Next, I get data via API from [Census Bureau U.S. International Trade
 Data](https://www.census.gov/foreign-trade/data/), and confirm the each
@@ -141,7 +139,16 @@ hts <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{2})"
 
 # First tranche 34 billion dollars, 25 percent, effective on July 6, 2018
 # https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/june/ustr-issues-tariffs-chinese-products
-text <- pdftools::pdf_text("data/2018-13248.pdf")
+
+url <- "https://ustr.gov/sites/default/files/2018-13248.pdf"
+
+tf <- tempfile(fileext = ".pdf")
+
+httr::GET(url, httr::write_disk(tf))
+```
+
+``` r
+text <- pdftools::pdf_text(tf)
 
 tariff_list_34b <- text[5:9] %>% 
   str_extract_all(hts) %>% 
@@ -152,7 +159,16 @@ df_list_34b <- tibble(tariff = "34b", hs8 = tariff_list_34b)
 
 # Second tranche 16 billion dollars, 25 percent, August 23, 2018
 # https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/august/ustr-finalizes-second-tranche
-text <- pdftools::pdf_text("data/Final Second Tranche.pdf")
+
+url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/Final%20Second%20Tranche.pdf"
+
+tf <- tempfile(fileext = ".pdf")
+
+httr::GET(url, httr::write_disk(tf))
+```
+
+``` r
+text <- pdftools::pdf_text(tf)
 
 tariff_list_16b <- text %>% 
   str_extract_all(hts) %>% 
@@ -163,7 +179,16 @@ df_list_16b <- tibble(tariff = "16b", hs8 = tariff_list_16b)
 
 # 200 billion dollars, 10 percent, September 24, 2018
 # https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/september/ustr-finalizes-tariffs-200
-text <- pdftools::pdf_text("data/Tariff List-09.17.18.pdf")
+
+url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/Tariff%20List-09.17.18.pdf"
+
+tf <- tempfile(fileext = ".pdf")
+
+httr::GET(url, httr::write_disk(tf))
+```
+
+``` r
+text <- pdftools::pdf_text(tf)
 
 tariff_list_200b <- text[1:(length(text) - 2)] %>% 
   str_extract_all(hts) %>% 
