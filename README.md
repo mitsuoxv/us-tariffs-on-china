@@ -1,7 +1,7 @@
 US tariffs on China
 ================
 Mitsuo Shiota
-2019-04-16
+2019-04-17
 
   - [Summary](#summary)
   - [Libraries and functions](#libraries-and-functions)
@@ -16,6 +16,8 @@ Mitsuo Shiota
 
   - [Chinese shares in US imports in tariff imposed goods and others in
     pdf](output/chinese-shares.pdf)
+  - [Chinese shares in HTS 8 digit imports by tariff schedule (2018) in
+    pdf](output/chinese-shares2.pdf)
 
 I have downloaded three USTR documents which list 8 digit HTS
 (Harmonized Tariff Scedule of the United States) codes of goods to
@@ -28,7 +30,8 @@ list is really worth 34, 16 and 200 billion dollars respectively.
 
 I calculate the Chinese shares on those tariff-imposed goods and on
 not-imposed goods, and look at the shares movements from January 2017 to
-now to know how much trade diversion is going.
+now to know how much trade diversion is going. I also draw a boxplot of
+Chinese shares in HTS 8 digit imports in 2018.
 
 ## Libraries and functions
 
@@ -71,14 +74,32 @@ res2df <- function(response) {
   df
 }
 
-# get china import data by year
-import_from_china <- function(year) {
+# transform df to 3 column df of time, hs8, value
+sum2hs8 <- function(df) {
+    df$GEN_CIF_MO <- as.numeric(df$GEN_CIF_MO)
+    
+    df$time <- as.Date(paste0(df$time, "-01"), "%Y-%m-%d")
+    
+    df %>% 
+      mutate(
+        hs8 = str_sub(I_COMMODITY, end = -3L) # cut codes from 10 to 8 digits
+      ) %>% 
+      # summarize because cutting codes may have created duplication
+      group_by(time, hs8) %>% 
+      summarize(value = sum(GEN_CIF_MO)) %>% 
+      ungroup() %>% 
+      select(time, hs8, value) %>% 
+      arrange(hs8, time)
+  }
+
+# get country import data by year
+import_from_country <- function(country, year) {
   response <- httr::GET(
     url = "https://api.census.gov/data/timeseries/intltrade/imports/hs",
     query = list(
       get="GEN_CIF_MO,I_COMMODITY",
       time=year,
-      CTY_CODE="5700",
+      CTY_CODE=country,
       COMM_LVL="HS10",
       key=keyring::key_get("census")
     )
@@ -86,13 +107,8 @@ import_from_china <- function(year) {
   
   df <- res2df(response)
   
-  df$GEN_CIF_MO <- as.numeric(df$GEN_CIF_MO)
-  
   df %>% 
-    mutate(
-      hs8 = str_sub(I_COMMODITY, end = -3L)
-    ) %>% 
-    select(-I_COMMODITY, -CTY_CODE, -COMM_LVL)
+    sum2hs8()
 }
 
 # get total import data by year
@@ -110,13 +126,8 @@ import_total <- function(year) {
   
   df <- res2df(response)
   
-  df$GEN_CIF_MO <- as.numeric(df$GEN_CIF_MO)
-  
   df %>% 
-    mutate(
-      hs8 = str_sub(I_COMMODITY, end = -3L)
-    ) %>% 
-    select(-I_COMMODITY, -SUMMARY_LVL2, -COMM_LVL)
+    sum2hs8()
 }
 ```
 
@@ -124,9 +135,6 @@ import_total <- function(year) {
 
 pdftools::pdf\_text lets me scan a pdf file by page. stringr package in
 tidyverse helps me to extract 8 digits.
-
-Although there are small differences in the list numbers between USTR
-saying and my calculation, I think it is so small that I can ignore.
 
 ``` r
 hts <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{2})"
@@ -140,12 +148,6 @@ tariff_list_34b <- text[5:9] %>%
   unlist() %>% 
   str_replace_all("\\.", "")
 
-length(tariff_list_34b) # USTR says 818
-```
-
-    ## [1] 818
-
-``` r
 df_list_34b <- tibble(tariff = "34b", hs8 = tariff_list_34b)
 
 # Second tranche 16 billion dollars, 25 percent, August 23, 2018
@@ -157,12 +159,6 @@ tariff_list_16b <- text %>%
   unlist() %>% 
   str_replace_all("\\.", "")
 
-length(tariff_list_16b) # USTR says 279
-```
-
-    ## [1] 280
-
-``` r
 df_list_16b <- tibble(tariff = "16b", hs8 = tariff_list_16b)
 
 # 200 billion dollars, 10 percent, September 24, 2018
@@ -174,14 +170,13 @@ tariff_list_200b <- text[1:(length(text) - 2)] %>%
   unlist() %>% 
   str_replace_all("\\.", "")
 
-length(tariff_list_200b) # USTR says 5745
-```
-
-    ## [1] 5743
-
-``` r
 df_list_200b <- tibble(tariff = "200b", hs8 = tariff_list_200b)
 ```
+
+USTR says the numbers of HTS 8 digit items are 818, 279 and 5745 for the
+first tranche 34b, the second tranche 16b and the last 200b,
+respectively. My caluculation says the numbers are 818, 280 and 5743.
+Although there are small differences, I think I can ignore.
 
 ## Get international trade data, and confirm USTR claims
 
@@ -206,60 +201,66 @@ other charges. I choose GEN\_CIF\_MO as import value.
 
 I get to know the country code of China is 5700 from [this
 page](https://www.census.gov/foreign-trade/schedules/c/countryname.html).
-
-Then I make functions above. OK, let us get data. Each download takes
-approximately half a minute.
+OK, let us get data. Each download takes approximately half a minute.
 
 ``` r
-df2018 <- import_from_china(2018)
+df2018 <- import_from_country(country = 5700, year = 2018)
 
 real34b <- df2018 %>% 
   semi_join(df_list_34b, by = "hs8") %>% 
-  summarize(sum = sum(GEN_CIF_MO)) %>% 
+  summarize(sum = sum(value)) %>% 
   as.numeric()
 
 real16b <- df2018 %>% 
   semi_join(df_list_16b, by = "hs8") %>% 
-  summarize(sum = sum(GEN_CIF_MO)) %>% 
+  summarize(sum = sum(value)) %>% 
   as.numeric()
 
 real200b <- df2018 %>% 
   semi_join(df_list_200b, by = "hs8") %>% 
-  summarize(sum = sum(GEN_CIF_MO)) %>% 
+  summarize(sum = sum(value)) %>% 
   as.numeric()
 ```
 
 Using the tariff lists of 8 digit HTS codes I extracted before, I check
-2018 imports are really worth as much as 34, 16 and 200 billion dollars
-as USTR claims. 2018 imports are 31.7, 15.2 and 193. Ratios to the USTR
-claims are 0.93, 0.95 and 0.97. Little bit smaller, but basically
-confirm the USTR claims.
+if 2018 imports are really worth as much as 34, 16 and 200 billion
+dollars as USTR claims. According to my calculation, 2018 imports are
+31.7, 15.2 and 193 billion dollars. Ratios to the USTR claims are 0.93,
+0.95 and 0.97. Little bit smaller, but basically confirm the USTR
+claims.
 
 ## Look at the Chinese share movements
 
-I get imports from China and total imports from January 2017 to now, and
-calculate Chinese shares in imports in each category that is 34b, 16b,
-200b imposed tariffs effective on July 6, 2018, August 23, 2018, and
-September 24, 2018, and the rest which is not imposed tariffs.
+I get imports from China and total imports from January 2017 up to now,
+and calculate Chinese shares in imports in each category that is 34b,
+16b, 200b imposed tariffs effective on July 6, 2018, August 23, 2018,
+and September 24, 2018, and the rest which is not imposed tariffs.
 
 What can I say from the chart below?
 
-  - Chinese shares are the lowest in 34b, next lowest in 16b, higher in
+1.  Chinese shares are the lowest in 34b, next lowest in 16b, higher in
     200b and the highest in the rest, exactly the same order of imposing
     tariffs. I guess USTR tends to choose lower Chinese share goods to
     impose tariffs to avoid supply chain distruptions.
 
-  - In both 34b and 16b, Chinese shares rise just before the effective
-    date, and decline thereafter. In 200b, I can see the small same
-    pattern, but see bigger rise in December 2018 just before the tariff
-    rates were scheduled to rise from 10 to 25 percent, and bigger
-    decline thereafter. This pattern reflects that importers rush before
-    and flee after.
+2.  In both 34b and 16b, Chinese shares rise just before the effective
+    date, and decline thereafter. This pattern reflects that importers
+    rush before and flee after.
 
-  - In the tariff imposed goods, Chinese shares are declining. This
+3.  In 200b, I can see the small same pattern, but see bigger rise in
+    December 2018 just before the tariff rates were scheduled to rise
+    from 10 to 25 percent, and bigger decline thereafter. Looks like
+    importers care little of 10 percent, but care much of 25 percent.
+
+4.  In the tariff imposed goods, Chinese shares are declining. This
     means other countries’ shares are rising. Trade diversion is going
     on.
 
 ![](README_files/figure-gfm/get_data-1.png)<!-- -->
+
+To confirm the point \#1 above, I draw the distribution of 2018 Chinese
+shares in HTS 8 digit goods by each tariff schedule category.
+
+![](README_files/figure-gfm/boxplot-1.png)<!-- -->
 
 EOL
