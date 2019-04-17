@@ -36,14 +36,20 @@ library(tidyverse)
 I make functions to facilitate data transformation and acquisition.
 
 ```{r self-made functions}
+# name an unnamed list like a, b, c ...
+name_list <- function(list) {
+  names(list) <- letters[1:length(list)]
+  
+  list
+}
+
 # transform response list to df
 res2df <- function(response) {
   res_content <- httr::content(response)
   
   df <- res_content[-1] %>% 
-    unlist() %>% 
-    matrix(nrow = length(res_content[-1]), byrow = TRUE) %>% 
-    as_tibble(validate = NULL, .name_repair = NULL)
+  map(name_list) %>% 
+  map_dfr(`[`)
   
   names(df) <- unlist(res_content[[1]])
   
