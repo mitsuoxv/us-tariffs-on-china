@@ -1,0 +1,414 @@
+---
+title: "China hits back, half the size of its claim"
+author: "Mitsuo Shiota"
+date: "2019-4-24"
+output: 
+  github_document:
+    toc: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Updated: `r Sys.Date()`
+
+## Summary
+
+After [I confirmed the USTR's claims on how much imports from China are affected by the tariffs they impose](README.md), I now turn to the Chinese claims on how much imports from the United States are affected by the retaliation tariffs they impose.
+
+If my calculations using [Census Bureau U.S. International Trade Data](https://www.census.gov/foreign-trade/data/) are right, the Chinese hit-backs are half the size of their claims. My guess is that they calculated the size based on HTS 6 digit codes, while they actually impose tariffs based on both 6 and 8 digit codes.
+
+## Libraries and functions
+
+I use the same packages I used in [README.md](README.md).
+
+```{r r libraries, include=FALSE}
+library(tidyverse)
+
+```
+I prepare some functions.
+
+```{r functions, echo=FALSE}
+# download to temporary pdf file, and scratch text from pdf
+url2text <- function(url) {
+  tf <- tempfile(fileext = ".pdf")
+  
+  httr::GET(url, httr::write_disk(tf))
+  
+  pdftools::pdf_text(tf)
+}
+
+# scratch pattern from text
+text2df <- function(text, pattern, tariff) {
+  tariff_list <- text %>% 
+    str_extract_all(pattern) %>% 
+    unlist() %>% 
+    str_replace("0+$", "")
+  
+  tibble(hs = tariff_list, tariff = tariff)
+}
+
+# name an unnamed list like V1, V2, V3 ...
+name_list <- function(list) {
+  names(list) <- paste0("V", seq_along(list))
+  
+  list
+}
+
+# transform response list to df
+res2df <- function(response) {
+  res_content <- httr::content(response)
+  
+  df <- res_content[-1] %>% 
+    map_dfr(name_list)
+  
+  names(df) <- unlist(res_content[[1]])
+  
+  df
+}
+
+# get country export data by year and by specified HTS digits (1-10)
+export_to_country <- function(country, hs_digits, year) {
+  try(if(hs_digits < 1 | hs_digits > 10) stop("hs_digits must be between 1 and 10"))
+  
+  digits <- if_else(hs_digits <=2, 2,
+                    if_else(hs_digits <= 4, 4,
+                            if_else(hs_digits <= 6, 6, 10)
+                    )
+  )
+  
+  response <- httr::GET(
+    url = "https://api.census.gov/data/timeseries/intltrade/exports/hs",
+    query = list(
+      get="ALL_VAL_MO,E_COMMODITY",
+      time=year,
+      CTY_CODE=country,
+      COMM_LVL=str_c("HS", digits),
+      key=keyring::key_get("census")
+    )
+  )
+  
+  df <- res2df(response)
+  
+  df$ALL_VAL_MO <- as.numeric(df$ALL_VAL_MO)
+  
+  df$time <- as.Date(paste0(df$time, "-01"), "%Y-%m-%d")
+  
+  df %>% 
+    rename(
+      value = ALL_VAL_MO,
+      hs = E_COMMODITY
+    ) %>% 
+    mutate(
+      hs = str_sub(hs, end = hs_digits) # cut codes
+    ) %>% 
+    # summarize because cutting codes may have created duplication
+    group_by(time, hs) %>% 
+    summarize(value = sum(value)) %>% 
+    ungroup() %>% 
+    select(time, hs, value) %>% 
+    arrange(hs, time)
+}
+
+```
+## Get tariff lists from Excel and PDF files
+
+I download Excel and PDF files from the Chinese government sites. I scratch HTS 8 digit codes from those files, and omit 0s in the codes in the right, as I guess 0s in the right means inclusion of any numbers. And I get the tariff list of each iteration or tranche like "3b", "34b", "16b" and "60b".
+
+```{r df_list, echo=FALSE, results="hide", cache=FALSE}
+# Retariation to Iron and Aluminium
+# http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201804/t20180401_2857769.html
+# url <- "http://http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201804/P020180401856022545193.xlsx"
+# httr::GET(url, httr::write_disk(tf <- tempfile(fileext = ".xlsx")))
+
+res <- readxl::read_excel("data/P020180401856022545193.xlsx", col_names = TRUE, skip = 4)
+
+names(res) <- c("item_number", "hs", "description", "rates")
+
+df_list_3b <- res %>% 
+  select(hs)
+
+nrow(df_list_3b) # 128
+
+df_list_3b$tariff <- "3b"
+
+df_list_3b$hs <- df_list_3b$hs %>% 
+  str_replace("0+$", "")
+
+# Tariff lists in HTS 8 digit codes
+# HTS (Harmonized Tariff Schedule of the United States)
+hts <- "\\d{8}"
+
+
+# US first tranche 34 billion dollars, 25 percent, effective on July 6, 2018
+# http://www.mofcom.gov.cn/article/ae/ai/201806/20180602756389.shtml
+# Retariation by China is the same amount
+text <- url2text("http://images.mofcom.gov.cn/www/201806/20180616015345014.pdf")
+
+df_list_34b <- text2df(text, hts, "34b")
+
+nrow(df_list_34b) # 545
+
+
+# US second tranche 16 billion dollars, 25 percent, August 23, 2018
+# Retariation by China is the same amount
+text <- url2text("http://images.mofcom.gov.cn/www/201806/20180616015405568.pdf")
+
+df_list_16b <- text2df(text, hts, "16b")
+
+nrow(df_list_16b) # 114
+
+# US 200 billion dollars, 10 percent, September 24, 2018
+# Retariation by China is 60 billion dollars in 4 groups
+# http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201808/t20180803_2980950.html
+# Group 1, 25 percent
+text <- url2text("http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201808/P020180803711628159425.pdf")
+
+df_list_60b_1 <- text2df(text, hts, "60b")
+
+nrow(df_list_60b_1) # 2494, different from 2493
+
+df_list_60b_1 <- df_list_60b_1 %>%
+  unique()
+
+nrow(df_list_60b_1) # 2493
+
+# 200 billion dollars, 10 percent, September 24, 2018
+# Retariation by China is 60 billion dollars in 4 groups
+# Group 2, 20 percent
+text <- url2text("http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201808/P020180803711628507212.pdf")
+
+df_list_60b_2 <- text2df(text, hts, "60b")
+
+nrow(df_list_60b_2) # 1078
+
+# 200 billion dollars, 10 percent, September 24, 2018
+# Retariation by China is 60 billion dollars in 4 groups
+# Group 3, 10 percent
+text <- url2text("http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201808/P020180803711628844240.pdf")
+
+df_list_60b_3 <- text2df(text, hts, "60b")
+
+nrow(df_list_60b_3) # 974
+
+# 200 billion dollars, 10 percent, September 24, 2018
+# Retariation by China is 60 billion dollars in 4 groups
+# Group 4, 5 percent
+text <- url2text("http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201808/P020180803711629144210.pdf")
+
+df_list_60b_4 <- text2df(text, hts, "60b")
+
+nrow(df_list_60b_4) # 662
+
+# Combine 60B
+df_list_60b <- df_list_60b_1 %>% 
+  bind_rows(df_list_60b_2) %>% 
+  bind_rows(df_list_60b_3) %>% 
+  bind_rows(df_list_60b_4)
+
+```
+
+## Get US export to China data in 2017
+
+```{r API_Key_input, include=FALSE}
+keyring::key_set("census")
+
+```
+
+```{r get 8 digit data, cache=FALSE}
+# Get export from China data
+# https://api.census.gov/data/timeseries/intltrade/exports/hs/variables.html
+
+# country code, China 5700
+# https://www.census.gov/foreign-trade/schedules/c/countryname.html
+
+df2017 <- export_to_country(5700, 8, 2017)
+
+total <- df2017 %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000 
+
+```
+US exports to China in 2017 amount to `r round(total, 0)` billion dollars in total. I have got data by HTS 8 digit codes in "df2017", a data frame of 3 columns of "time", "hs" and "value."
+
+## US export values don't add up to the Chinese claims
+
+I prepare function to forward match 8 digit codes to less than 8 digit codes, in order to make the look-up table of 2 columns, "hs" of unique HTS 8 digit codes and "tariff" of tariff category like "34b".
+
+```{r lookup_hs}
+# add tariff category to df2017
+lookup_hs <- tibble(hs = df2017$hs %>% unique())
+
+# function
+find_tariff <- function(hs, df) {
+  patterns <- str_c("^", df$hs)
+
+  result <- df[str_detect(hs, patterns), ] %>% 
+    select(tariff) %>% 
+    as.character()
+
+  result
+}
+
+```
+As there are duplication of HTS codes among "tariff", I make one look-up table for each "tariff", left join it to the US export data, and calculate sum of "value" by each "tariff".
+
+```{r 3b, echo=FALSE, cache=FALSE}
+lookup_hs_3b <- lookup_hs %>% 
+  mutate(tariff = map_chr(hs, find_tariff, df_list_3b))
+
+df2017_3b <- df2017 %>% 
+  left_join(lookup_hs_3b, by = "hs")
+
+df_3b <- df2017_3b %>% 
+  group_by(tariff) %>% 
+  summarize(value = sum(value))
+
+df_3b
+
+value_3b <- df_3b %>% 
+  filter(tariff != "character(0)") %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000
+
+```
+US export value in 3b list is `r round(value_3b, 2)` billion dollars, and its ratio to the Chinese claim is `r round(value_3b / 3, 2)`.
+
+```{r 34b, echo=FALSE, cache=FALSE}
+lookup_hs_34b <- lookup_hs %>% 
+  mutate(tariff = map_chr(hs, find_tariff, df_list_34b))
+
+df2017_34b <- df2017 %>% 
+  left_join(lookup_hs_34b, by = "hs")
+
+df_34b <- df2017_34b %>% 
+  group_by(tariff) %>% 
+  summarize(value = sum(value))
+
+df_34b
+
+value_34b <- df_34b %>% 
+  filter(tariff != "character(0)") %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000
+
+```
+US export value in 34b list is `r round(value_34b, 2)` billion dollars, and its ratio to the Chinese claim is `r round(value_34b / 34, 2)`.
+
+```{r 16b, echo=FALSE, cache=FALSE}
+lookup_hs_16b <- lookup_hs %>% 
+  mutate(tariff = map_chr(hs, find_tariff, df_list_16b))
+
+df2017_16b <- df2017 %>% 
+  left_join(lookup_hs_16b, by = "hs")
+
+df_16b <- df2017_16b %>% 
+  group_by(tariff) %>% 
+  summarize(value = sum(value))
+
+df_16b
+
+value_16b <- df_16b %>% 
+  filter(tariff != "character(0)") %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000
+
+```
+US export value in 16b list is `r round(value_16b, 2)` billion dollars, and its ratio to the Chinese claim is `r round(value_16b / 16, 2)`.
+
+```{r 60b, echo=FALSE, cache=FALSE}
+lookup_hs_60b <- lookup_hs %>% 
+  mutate(tariff = map_chr(hs, find_tariff, df_list_60b))
+
+df2017_60b <- df2017 %>% 
+  left_join(lookup_hs_60b, by = "hs")
+
+df_60b <- df2017_60b %>% 
+  group_by(tariff) %>% 
+  summarize(value = sum(value))
+
+df_60b
+
+value_60b <- df_60b %>% 
+  filter(tariff != "character(0)") %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000
+
+total_value <- value_3b + value_34b + value_16b + value_60b
+
+```
+US export value in 60b list is `r round(value_60b, 2)` billion dollars, and its ratio to the Chinese claim is `r round(value_60b / 60, 2)`.
+
+Apperance of strange values like "c(\"16b\", \"16b\")" and "c(\"60b\", \"60b\")" in "tariff" column means that some 8 digit codes fit multiple codes in the look-up table I have prepared. Probably I have omitted too many 0s in the look-up table.
+
+In total, ignoring duplication, China claims it imposed tariffs on 113 billion dollars worth of imports from the US. If my calculation is right, it really is `r round(total_value, 2)` billion dollars, `r round(total_value / 113, 2)` of its claim.
+
+Why are Chinese claims and my calculations so different? My guess is that Chinese calculated values on 6 digit codes by ignoring 8 digit codes. Let us validate it.
+
+## Chinese may have calculated only on 6 digit codes
+
+I cut HTS codes from 8 to 6 digits in the lists of Excel and PDF files.
+
+```{r list_6, echo=FALSE}
+df_list_3b_6 <- df_list_3b %>% 
+  mutate(
+    hs = hs %>% str_c("000000") %>% str_sub(end = 6L)
+  ) %>% 
+  unique()
+
+df_list_34b_6 <- df_list_34b %>% 
+  mutate(
+    hs = hs %>% str_c("000000") %>% str_sub(end = 6L)
+  ) %>% 
+  unique()
+
+df_list_16b_6 <- df_list_16b %>% 
+  mutate(
+    hs = hs %>% str_c("000000") %>% str_sub(end = 6L)
+  ) %>% 
+  unique()
+
+df_list_60b_6 <- df_list_60b %>% 
+  mutate(
+    hs = hs %>% str_c("000000") %>% str_sub(end = 6L)
+  ) %>% 
+  unique()
+
+```
+
+And I get US export data in HTS 6 digits.
+
+```{r value_6, echo=FALSE}
+df2017_6 <- df2017 %>% 
+  mutate(
+    hs = hs %>% str_c("000000") %>% str_sub(end = 6L)
+  ) %>% 
+  group_by(hs) %>% 
+  summarize(value = sum(value))
+
+value_3b_6 <- df2017_6 %>% 
+  semi_join(df_list_3b_6, by = "hs") %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000
+  
+value_34b_6 <- df2017_6 %>% 
+  semi_join(df_list_34b_6, by = "hs") %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000
+
+value_16b_6 <- df2017_6 %>% 
+  semi_join(df_list_16b_6, by = "hs") %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000
+
+value_60b_6 <- df2017_6 %>% 
+  semi_join(df_list_60b_6, by = "hs") %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000
+
+```
+The results in "3b", "34b", "16b" and "60b" are `r round(value_3b_6, 2)`, `r round(value_34b_6, 2)`, `r round(value_16b_6, 2)` and `r round(value_60b_6, 2)` billion dollars respectively. Ratios to the Chinese claims are `r round(value_3b_6 / 3, 2)`, `r round(value_34b_6 / 34, 2)`, `r round(value_16b_6 / 16, 2)` and `r round(value_60b_6 / 60, 2)`. As Chinese CIF import values are a little bit larger than US FOB export values, and it takes some time to transport goods from US to China, ratios can't be exactly one. These ratios suggest I am right.
+
+EOL

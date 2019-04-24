@@ -1,7 +1,7 @@
 ---
 title: "US tariffs on China"
 author: "Mitsuo Shiota"
-date: "`r Sys.Date()`"
+date: "2019-04-17"
 output: 
   github_document:
     toc: TRUE
@@ -12,6 +12,9 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+Updated: `r Sys.Date()`
+
+I added an analysis of Chinese retariation tariff lists in [another page](China-hits-back.Rmd).
 
 ## Summary
 
@@ -20,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 I extract 8 digit HTS (Harmonized Tariff Scedule of the United States) codes from the three USTR documents (pdf format) I download.
 
-Next, I get data via API from [Census Bureau U.S. International Trade Data](https://www.census.gov/foreign-trade/data/), and confirm the each list is  really worth 34, 16 and 200 billion dollars respectively.
+Next, I get data via API from [Census Bureau U.S. International Trade Data](https://www.census.gov/foreign-trade/data/), and confirm the each list is  really worth 34, 16 and 200 billion dollars respectively. [On the contrary, I can't confirm each Chinese tariff list is worth 3, 34, 16 and 60 billion dollars they claim.](China-hits-back.Rmd)
 
 I calculate the Chinese shares on those tariff-imposed goods and on not-imposed goods, and look at the shares movements from January 2017 to now to know how much trade diversion is going. I also draw a boxplot of Chinese shares in HTS 8 digit imports in 2018.
 
