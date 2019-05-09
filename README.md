@@ -1,7 +1,7 @@
 US tariffs on China
 ================
 Mitsuo Shiota
-2019-04-18
+2019-04-17
 
   - [Summary](#summary)
   - [Libraries and functions](#libraries-and-functions)
@@ -11,6 +11,11 @@ Mitsuo Shiota
     claims](#get-international-trade-data-and-confirm-ustr-claims)
   - [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
+
+Updated: 2019-05-09
+
+I added an analysis of Chinese retariation tariff lists in [another
+page](China-hits-back.Rmd).
 
 ## Summary
 
@@ -24,7 +29,9 @@ codes from the three USTR documents (pdf format) I download.
 
 Next, I get data via API from [Census Bureau U.S. International Trade
 Data](https://www.census.gov/foreign-trade/data/), and confirm the each
-list is really worth 34, 16 and 200 billion dollars respectively.
+list is really worth 34, 16 and 200 billion dollars respectively. [On
+the contrary, I can’t confirm each Chinese tariff list is worth 3, 34,
+16 and 60 billion dollars they claim.](China-hits-back.Rmd)
 
 I calculate the Chinese shares on those tariff-imposed goods and on
 not-imposed goods, and look at the shares movements from January 2017 to

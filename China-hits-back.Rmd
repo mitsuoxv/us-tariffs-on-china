@@ -1,7 +1,7 @@
 ---
 title: "China hits back, half the size of its claim"
 author: "Mitsuo Shiota"
-date: "2019-4-24"
+date: "2019-04-24"
 output: 
   github_document:
     toc: TRUE
