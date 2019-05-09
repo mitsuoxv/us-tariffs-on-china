@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 Updated: `r Sys.Date()`
 
-I added an analysis of Chinese retariation tariff lists in [another page](China-hits-back.Rmd).
+I added an analysis of Chinese retariation tariff lists in [another page](China-hits-back.md).
 
 ## Summary
 
