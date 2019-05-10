@@ -15,7 +15,7 @@ Mitsuo Shiota
 Updated: 2019-05-09
 
 I added an analysis of Chinese retariation tariff lists in [another
-page](China-hits-back.Rmd).
+page](China-hits-back.md).
 
 ## Summary
 
