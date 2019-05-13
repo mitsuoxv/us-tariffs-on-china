@@ -1,0 +1,288 @@
+---
+title: "Who pays tariffs?"
+author: "Mitsuo Shiota"
+date: "2019-05-13"
+output: 
+  github_document:
+    toc: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Updated: `r Sys.Date()`
+
+## Summary
+
+On May 11, 2019, Japanese newspaper Nikkei reported that China pays most of the tariffs by cutting export prices, basically confirming [the US President's tweet](https://twitter.com/realDonaldTrump/status/1126815126584266753). I was surprised, as [US import price index: China](https://fred.stlouisfed.org/series/CHNTOT) has not yet declined so much. So I have decided to check how US import prices from China changed from 2018 Q2, just before the first tranche "34b" became effective, for each HTS 10 digit code item, and compare the changes by tariff schedule category.
+
+Result: Although the median price of the first tranche "34b" dropped nearly 10 percent in 2019 Q1, the others ("16b" and "200b") dropped only 2 percent, as much as non-tariff levied items ("rest") dropped. The value-weighted mean prices, when I trim somewhat arbitraily by removing more than 6 times price increase items, are almost same across tariff schedule categories including non-tariff-levied category. I can't confirm the Nikkei report.
+
+```{r libraries, include=FALSE}
+# Libraries
+library(tidyverse)
+
+# Functions
+# name an unnamed list like V1, V2, V3 ...
+name_list <- function(list) {
+  names(list) <- paste0("V", seq_along(list))
+  
+  list
+}
+
+# transform response list to df
+res2df <- function(response) {
+  res_content <- httr::content(response)
+  
+  df <- res_content[-1] %>% 
+    map_dfr(name_list)
+  
+  names(df) <- unlist(res_content[[1]])
+  
+  df
+}
+
+# get country import data by year
+import_from_country <- function(country, year) {
+  response <- httr::GET(
+    url = "https://api.census.gov/data/timeseries/intltrade/imports/hs",
+    query = list(
+      get="I_COMMODITY,GEN_CIF_MO,CON_QY1_MO,UNIT_QY1",
+      time=year,
+      CTY_CODE=country,
+      COMM_LVL="HS10",
+      key=keyring::key_get("census")
+    )
+  )
+  
+  df <- res2df(response)
+  
+  df$GEN_CIF_MO <- as.numeric(df$GEN_CIF_MO)
+  df$CON_QY1_MO <- as.numeric(df$CON_QY1_MO)
+    
+  df$time <- as.Date(paste0(df$time, "-01"), "%Y-%m-%d")
+    
+  df %>% 
+    rename(
+      hs = I_COMMODITY,
+      value = GEN_CIF_MO,
+      quantity = CON_QY1_MO
+    ) %>% 
+    select(time, hs, value, quantity) %>% 
+    arrange(hs, time)
+}
+
+```
+
+## Extract HTS 8 digit codes from pdf files
+
+I repeat the HTS 8 digit code scratching, as I have done in [the original analysis](README.md).
+
+```{r extract_digits, echo=FALSE, results="hide", cache=TRUE}
+hts <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{2})"
+
+# First tranche 34 billion dollars, 25 percent, effective on July 6, 2018
+# https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/june/ustr-issues-tariffs-chinese-products
+
+url <- "https://ustr.gov/sites/default/files/2018-13248.pdf"
+
+tf <- tempfile(fileext = ".pdf")
+
+httr::GET(url, httr::write_disk(tf))
+
+text <- pdftools::pdf_text(tf)
+
+tariff_list_34b <- text[5:9] %>% 
+  str_extract_all(hts) %>% 
+  unlist() %>% 
+  str_replace_all("\\.", "")
+
+df_list_34b <- tibble(tariff = "34b", hs8 = tariff_list_34b)
+
+# Second tranche 16 billion dollars, 25 percent, August 23, 2018
+# https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/august/ustr-finalizes-second-tranche
+
+url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/Final%20Second%20Tranche.pdf"
+
+tf <- tempfile(fileext = ".pdf")
+
+httr::GET(url, httr::write_disk(tf))
+
+text <- pdftools::pdf_text(tf)
+
+tariff_list_16b <- text %>% 
+  str_extract_all(hts) %>% 
+  unlist() %>% 
+  str_replace_all("\\.", "")
+
+df_list_16b <- tibble(tariff = "16b", hs8 = tariff_list_16b)
+
+# 200 billion dollars, 10 percent, September 24, 2018
+# https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/september/ustr-finalizes-tariffs-200
+
+url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/Tariff%20List-09.17.18.pdf"
+
+tf <- tempfile(fileext = ".pdf")
+
+httr::GET(url, httr::write_disk(tf))
+
+text <- pdftools::pdf_text(tf)
+
+tariff_list_200b <- text[1:(length(text) - 2)] %>% 
+  str_extract_all(hts) %>% 
+  unlist() %>% 
+  str_replace_all("\\.", "")
+
+df_list_200b <- tibble(tariff = "200b", hs8 = tariff_list_200b)
+
+```
+
+## Get monthly import data
+
+```{r API_Key_input, include=FALSE}
+keyring::key_set("census")
+
+```
+
+```{r get_data, echo=FALSE, cache=FALSE}
+df2018 <- import_from_country(5700, 2018)
+df2019 <- import_from_country(5700, 2019)
+
+df_china <- df2018 %>% 
+  bind_rows(df2019)
+
+```
+
+The number of HTS 10 digit code items are `r df_china$hs %>% unique() %>% length()`.
+
+## Transform monthly data into quarterly data
+
+I change data from monthly to quarterly, and calculate unit price as value divided by quantity. Next, I index unit price as of 2018 2Q equals to one, and add tariff schedule category ("34b", "16b", "200b", "rest") to each item.
+
+```{r transform_quarterly, echo=FALSE}
+
+df_q <- df_china %>%
+  mutate(
+    quarter = zoo::as.yearqtr(time)
+  ) %>% 
+  group_by(hs, quarter) %>% 
+  summarize(
+    value = sum(value),
+    quantity = sum(quantity)
+  ) %>% 
+  mutate(unit_price = value / quantity)
+
+temp <- df_q %>% 
+  filter(quarter == "2018 Q2") %>% 
+  select(hs, unit_price)
+
+df_q <- df_q %>% 
+  left_join(temp, by = "hs") %>% 
+  mutate(index = unit_price.x / unit_price.y) %>% 
+  drop_na(index) %>% 
+  filter(index < Inf)
+
+df_q <- df_q %>% 
+  mutate(hs8 = str_sub(hs, start = 1L, end = 8L))
+
+# add category
+df_c <- df_q %>% 
+  left_join(df_list_34b, by = "hs8") %>% 
+  left_join(df_list_16b, by = "hs8") %>% 
+  left_join(df_list_200b, by = "hs8") %>% 
+  mutate(
+    category = if_else(!is.na(tariff.x), "34b",
+                       if_else(!is.na(tariff.y), "16b",
+                               if_else(!is.na(tariff), "200b", "rest")))
+  ) %>% 
+  select(-starts_with("tariff"))
+
+df_c$category <- factor(df_c$category, 
+                            levels = c("34b", "16b", "200b", "rest"))
+
+
+```
+
+Now, the number of HTS 10 digit code items are `r df_q$hs %>% unique() %>% length()`.
+
+## Look at the price changes from 2018 Q2
+
+Look at 2018 Q3.
+
+```{r boxplot_2018_Q3, echo=FALSE}
+df_2018Q3 <- df_c %>% 
+  filter(quarter == "2018 Q3")
+
+df_2018Q3 %>% 
+  group_by(category) %>% 
+  summarize(median = median(index))
+
+df_2018Q3 %>% 
+  ggplot(aes(x = category, y = index)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(0, 2)) +
+  labs(
+    title = "Price index as of 2018 Q3",
+    x ="", y = "index (2018 Q2 = 1)"
+  )
+
+df_2018Q3 %>% 
+  filter(index <= 6) %>% 
+  group_by(category) %>% 
+  summarize(w_mean = weighted.mean(index, value))
+
+```
+Look at 2018 Q4.
+
+```{r boxplot_2018_Q4, echo=FALSE}
+df_2018Q4 <- df_c %>% 
+  filter(quarter == "2018 Q4")
+
+df_2018Q4 %>% 
+  group_by(category) %>% 
+  summarize(median = median(index))
+
+df_2018Q4 %>% 
+  ggplot(aes(x = category, y = index)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(0, 2)) +
+  labs(
+    title = "Price index as of 2018 Q4",
+    x ="", y = "index (2018 Q2 = 1)"
+  )
+
+df_2018Q4 %>% 
+  filter(index <= 6) %>% 
+  group_by(category) %>% 
+  summarize(w_mean = weighted.mean(index, value))
+
+```
+Look at 2019 Q1.
+
+```{r boxplot_2019_Q1, echo=FALSE}
+df_2019Q1 <- df_c %>% 
+  filter(quarter == "2019 Q1")
+
+df_2019Q1 %>% 
+  group_by(category) %>% 
+  summarize(median = median(index))
+
+df_2019Q1 %>% 
+  ggplot(aes(x = category, y = index)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(0, 2)) +
+  labs(
+    title = "Price index as of 2019 Q1",
+    x ="", y = "index (2018 Q2 = 1)"
+  )
+
+df_2019Q1 %>% 
+  filter(index <= 6) %>% 
+  group_by(category) %>% 
+  summarize(w_mean = weighted.mean(index, value))
+
+```
+
+EOL
