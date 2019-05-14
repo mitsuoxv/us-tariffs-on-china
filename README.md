@@ -12,10 +12,12 @@ Mitsuo Shiota
   - [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2019-05-09
+Updated: 2019-05-14
 
 I added an analysis of Chinese retariation tariff lists in [another
 page](China-hits-back.md).
+
+I added an analysis of who pays tariffs in [another page](Who-pays.md).
 
 ## Summary
 
@@ -231,7 +233,7 @@ keyring::key_set("census")
 I struggle with which table I should use, and reach [this
 page](https://www.census.gov/data/developers/data-sets/international-trade.html).
 Next I struggle with which variables I should use, and reach [this
-page](https://api.census.gov/data/timeseries/intltrade/exports/hs/variables.html).
+page](https://api.census.gov/data/timeseries/intltrade/imports/hs/variables.html).
 I experiment a little, and know that GEN\_CIF\_MO = GEN\_VAL\_MO +
 GEN\_CHA\_MO. Looks like CIF basis = FOB basis + Freight, insurance and
 other charges. I choose GEN\_CIF\_MO as import value.

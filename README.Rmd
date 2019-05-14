@@ -16,6 +16,8 @@ Updated: `r Sys.Date()`
 
 I added an analysis of Chinese retariation tariff lists in [another page](China-hits-back.md).
 
+I added an analysis of who pays tariffs in [another page](Who-pays.md).
+
 ## Summary
 
 - [Chinese shares in US imports in tariff imposed goods and others in pdf](output/chinese-shares.pdf)
@@ -190,7 +192,7 @@ keyring::key_set("census")
 
 ```
 
-I struggle with which table I should use, and reach [this page](https://www.census.gov/data/developers/data-sets/international-trade.html). Next I struggle with which variables I should use, and reach [this page](https://api.census.gov/data/timeseries/intltrade/exports/hs/variables.html). I experiment a little, and know that GEN_CIF_MO = GEN_VAL_MO + GEN_CHA_MO. Looks like CIF basis = FOB basis + Freight, insurance and other charges. I choose GEN_CIF_MO as import value.
+I struggle with which table I should use, and reach [this page](https://www.census.gov/data/developers/data-sets/international-trade.html). Next I struggle with which variables I should use, and reach [this page](https://api.census.gov/data/timeseries/intltrade/imports/hs/variables.html). I experiment a little, and know that GEN_CIF_MO = GEN_VAL_MO + GEN_CHA_MO. Looks like CIF basis = FOB basis + Freight, insurance and other charges. I choose GEN_CIF_MO as import value.
 
 I get to know the country code of China is 5700 from [this page](https://www.census.gov/foreign-trade/schedules/c/countryname.html). OK, let us get data. Each download takes approximately half a minute.
 

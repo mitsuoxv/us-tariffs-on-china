@@ -18,7 +18,11 @@ Updated: `r Sys.Date()`
 
 On May 11, 2019, Japanese newspaper Nikkei reported that China pays most of the tariffs by cutting export prices, basically confirming [the US President's tweet](https://twitter.com/realDonaldTrump/status/1126815126584266753). I was surprised, as [US import price index: China](https://fred.stlouisfed.org/series/CHNTOT) has not yet declined so much. So I have decided to check how US import prices from China changed from 2018 Q2, just before the first tranche "34b" became effective, for each HTS 10 digit code item, and compare the changes by tariff schedule category.
 
-Result: Although the median price of the first tranche "34b" dropped nearly 10 percent in 2019 Q1, the others ("16b" and "200b") dropped only 2 percent, as much as non-tariff levied items ("rest") dropped. The value-weighted mean prices, when I trim somewhat arbitraily by removing more than 6 times price increase items, are almost same across tariff schedule categories including non-tariff-levied category. I can't confirm the Nikkei report.
+Result: Although the median price of the first tranche "34b" dropped nearly 10 percent in 2019 Q1, the others ("16b" and "200b") dropped only 2 percent, as much as non-tariff levied items ("rest") dropped. This suggests China pays a third of tariffs in "34b", and nothing in "16b" and "200b". I can't confirm the Nikkei report.
+
+## Libraries and functions
+
+Looking at [census data page](https://api.census.gov/data/timeseries/intltrade/imports/hs/variables.html), I decide to select "GEN_VAL_MO" as value, and "CON_QY1_MO" as quantity, though I selected "GEN_CIF_MO" as value in [the original analysis](README.md).
 
 ```{r libraries, include=FALSE}
 # Libraries
@@ -49,7 +53,7 @@ import_from_country <- function(country, year) {
   response <- httr::GET(
     url = "https://api.census.gov/data/timeseries/intltrade/imports/hs",
     query = list(
-      get="I_COMMODITY,GEN_CIF_MO,CON_QY1_MO,UNIT_QY1",
+      get="I_COMMODITY,GEN_VAL_MO,CON_QY1_MO,UNIT_QY1",
       time=year,
       CTY_CODE=country,
       COMM_LVL="HS10",
@@ -59,7 +63,7 @@ import_from_country <- function(country, year) {
   
   df <- res2df(response)
   
-  df$GEN_CIF_MO <- as.numeric(df$GEN_CIF_MO)
+  df$GEN_VAL_MO <- as.numeric(df$GEN_VAL_MO)
   df$CON_QY1_MO <- as.numeric(df$CON_QY1_MO)
     
   df$time <- as.Date(paste0(df$time, "-01"), "%Y-%m-%d")
@@ -67,7 +71,7 @@ import_from_country <- function(country, year) {
   df %>% 
     rename(
       hs = I_COMMODITY,
-      value = GEN_CIF_MO,
+      value = GEN_VAL_MO,
       quantity = CON_QY1_MO
     ) %>% 
     select(time, hs, value, quantity) %>% 
@@ -80,7 +84,7 @@ import_from_country <- function(country, year) {
 
 I repeat the HTS 8 digit code scratching, as I have done in [the original analysis](README.md).
 
-```{r extract_digits, echo=FALSE, results="hide", cache=TRUE}
+```{r extract_digits, echo=FALSE, results="hide", cache=FALSE}
 hts <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{2})"
 
 # First tranche 34 billion dollars, 25 percent, effective on July 6, 2018
@@ -146,7 +150,7 @@ keyring::key_set("census")
 
 ```
 
-```{r get_data, echo=FALSE, cache=FALSE}
+```{r get_data, echo=FALSE, cache=TRUE}
 df2018 <- import_from_country(5700, 2018)
 df2019 <- import_from_country(5700, 2019)
 
@@ -157,9 +161,9 @@ df_china <- df2018 %>%
 
 The number of HTS 10 digit code items are `r df_china$hs %>% unique() %>% length()`.
 
-## Transform monthly data into quarterly data
+## Transform into quarterly data
 
-I change data from monthly to quarterly, and calculate unit price as value divided by quantity. Next, I index unit price as of 2018 2Q equals to one, and add tariff schedule category ("34b", "16b", "200b", "rest") to each item.
+I change data from monthly to quarterly, as I have to drop so many data to calculate unit price as value divided by quantity in monthly data. I index unit price as of 2018 2Q equals to one, and add tariff schedule category ("34b", "16b", "200b", "rest") to each item.
 
 ```{r transform_quarterly, echo=FALSE}
 
@@ -209,11 +213,15 @@ Now, the number of HTS 10 digit code items are `r df_q$hs %>% unique() %>% lengt
 
 ## Look at the price changes from 2018 Q2
 
-Look at 2018 Q3.
+Look at 2018 Q3. In some non-commodity items, products are so different, and it is difficult to interpret value per quantity changes as price changes. So I think we had better ignore outliers, and look at the median of price indices by each category. 
 
 ```{r boxplot_2018_Q3, echo=FALSE}
 df_2018Q3 <- df_c %>% 
   filter(quarter == "2018 Q3")
+
+df_2018Q3 %>% 
+  group_by(category) %>% 
+  count()
 
 df_2018Q3 %>% 
   group_by(category) %>% 
@@ -228,17 +236,28 @@ df_2018Q3 %>%
     x ="", y = "index (2018 Q2 = 1)"
   )
 
+
+```
+
+I also calculate value-weighted mean prices. When I trim somewhat arbitrarily by removing more than 6 times price increase items, the indices are almost same across tariff schedule categories. But trimming is arbitrary. I think we had better look at median than value-weighted mean.
+
+```{r w_mean, echo=FALSE}
 df_2018Q3 %>% 
   filter(index <= 6) %>% 
   group_by(category) %>% 
   summarize(w_mean = weighted.mean(index, value))
 
 ```
+
 Look at 2018 Q4.
 
 ```{r boxplot_2018_Q4, echo=FALSE}
 df_2018Q4 <- df_c %>% 
   filter(quarter == "2018 Q4")
+
+df_2018Q4 %>% 
+  group_by(category) %>% 
+  count()
 
 df_2018Q4 %>% 
   group_by(category) %>% 
@@ -264,6 +283,10 @@ Look at 2019 Q1.
 ```{r boxplot_2019_Q1, echo=FALSE}
 df_2019Q1 <- df_c %>% 
   filter(quarter == "2019 Q1")
+
+df_2019Q1 %>% 
+  group_by(category) %>% 
+  count()
 
 df_2019Q1 %>% 
   group_by(category) %>% 
