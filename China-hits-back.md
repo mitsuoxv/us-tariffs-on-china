@@ -1,7 +1,7 @@
 China hits back, half the size of its claim
 ================
 Mitsuo Shiota
-2019-4-24
+2019-04-24
 
   - [Summary](#summary)
   - [Libraries and functions](#libraries-and-functions)
@@ -13,8 +13,10 @@ Mitsuo Shiota
     claims](#us-export-values-dont-add-up-to-the-chinese-claims)
   - [Chinese may have calculated only on 6 digit
     codes](#chinese-may-have-calculated-only-on-6-digit-codes)
+  - [Even if retaliation size is less than claimed, US exports are
+    hurt](#even-if-retaliation-size-is-less-than-claimed-us-exports-are-hurt)
 
-Updated: 2019-04-24
+Updated: 2019-05-15
 
 ## Summary
 
@@ -28,6 +30,9 @@ Data](https://www.census.gov/foreign-trade/data/) are right, the Chinese
 hit-backs are half the size of their claims. My guess is that they
 calculated the size based on HTS 6 digit codes, while they actually
 impose tariffs based on both 6 and 8 digit codes.
+
+Even if retaliation size is less than claimed, US exports are being
+hurt.
 
 ## Libraries and functions
 
@@ -127,10 +132,10 @@ the Chinese claim is 0.62.
 US export value in 60b list is 29.83 billion dollars, and its ratio to
 the Chinese claim is 0.5.
 
-Apperance of strange values like “c("16b", "16b")” and “c("60b", "60b")”
-in “tariff” column means that some 8 digit codes fit multiple codes in
-the look-up table I have prepared. Probably I have omitted too many 0s
-in the look-up table.
+Appearance of strange values like “c("16b", "16b")” and “c("60b",
+"60b")” in “tariff” column means that some 8 digit codes fit multiple
+codes in the look-up table I have prepared. Probably I have omitted too
+many 0s in the look-up table.
 
 In total, ignoring duplication, China claims it imposed tariffs on 113
 billion dollars worth of imports from the US. If my calculation is
@@ -150,5 +155,40 @@ The results in “3b”, “34b”, “16b” and “60b” are 2.44, 29.17, 15.
 51.96 billion dollars respectively. Ratios to the Chinese claims are
 0.81, 0.86, 0.96 and 0.87. As Chinese CIF import values are a little bit
 larger than US FOB export values, and it takes some time to transport
-goods from US to China, ratios can’t be exactly one. These ratios
-suggest I am right.
+goods from US to China, ratios can’t be exactly one. These numbers
+support my guess that Chinese calculated values on 6 digit codes.
+
+After I first finished writing this study, I have found [this
+page](http://www.customs.go.jp/toukei/sankou/code/code_e.htm). Among HS
+8 digits, the first 6 digits are the same across countries, while the
+rest digits are domestic, thus can be different across countries. As far
+as the first 6 digits are the same for US and China, my guess does not
+change.
+
+But I also have happened to find that as for the first 4 digits of
+airplanes, US export stats code is “8800”, while [China import stats
+code](http://english.customs.gov.cn/Statics/650f7297-a212-4f0e-a5a8-67422b04e550.html)
+is “8802”. If this kind of interpretation difference is large enough to
+make the first 6 digits non-comparable between US and China, I can’t
+assume China imports from US on some goods are the same as US exports to
+China. To completely validate my guess, I have to go for China import
+stats, but so far I can’t find convenient APIs for them.
+
+## Even if retaliation size is less than claimed, US exports are hurt
+
+I get data from 2017 to 2019 based on 6 digit codes, and put tariff
+category on each item.
+
+There are 89 duplication. I use “first in” method to put category.
+
+Retaliation effective dates are April 2, July 6, August 23, September
+24, 2018 for “3b”, “34b”, “16b” and “60b” respectively. “3b”, “16b” and
+“60b” are falling after the effective dates. “34b” is volatile, and is
+falling from the peak of July-December 2017 before the effective date.
+“34b” includes agricultural goods like soybeans, automobiles and
+marine products. Non-retaliated “rest” is not growing. Overall, US
+exports are hurt.
+
+![](China-hits-back_files/figure-gfm/line_chart-1.png)<!-- -->
+
+EOL
