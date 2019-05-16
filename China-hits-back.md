@@ -16,7 +16,7 @@ Mitsuo Shiota
   - [Even if retaliation size is less than claimed, US exports are
     hurt](#even-if-retaliation-size-is-less-than-claimed-us-exports-are-hurt)
 
-Updated: 2019-05-15
+Updated: 2019-05-16
 
 ## Summary
 
@@ -176,18 +176,17 @@ stats, but so far I can’t find convenient APIs for them.
 
 ## Even if retaliation size is less than claimed, US exports are hurt
 
-I get data from 2017 to 2019 based on 6 digit codes, and put tariff
+I get data from 2016 to 2019 based on 6 digit codes, and put tariff
 category on each item.
 
-There are 89 duplication. I use “first in” method to put category.
+There are 93 duplication. I use “first in” method to put category.
 
 Retaliation effective dates are April 2, July 6, August 23, September
 24, 2018 for “3b”, “34b”, “16b” and “60b” respectively. “3b”, “16b” and
-“60b” are falling after the effective dates. “34b” is volatile, and is
-falling from the peak of July-December 2017 before the effective date.
-“34b” includes agricultural goods like soybeans, automobiles and
-marine products. Non-retaliated “rest” is not growing. Overall, US
-exports are hurt.
+“60b” are falling after the effective dates. “34b”, which includes
+agricultural goods like soybeans, automobiles and marine products, is
+seasonal, and failed to surge in July-December 2018. Non-retaliated
+“rest” is not growing. Overall, US exports are hurt.
 
 ![](China-hits-back_files/figure-gfm/line_chart-1.png)<!-- -->
 

@@ -420,7 +420,7 @@ But I also have happened to find that as for the first 4 digits of airplanes, US
 
 ## Even if retaliation size is less than claimed, US exports are hurt
 
-I get data from 2017 to 2019 based on 6 digit codes, and put tariff category on each item.
+I get data from 2016 to 2019 based on 6 digit codes, and put tariff category on each item.
 
 ```{r get_data_2018_2019, echo=FALSE}
 # transform from 8 to 6 digits
@@ -435,12 +435,15 @@ df2017m <- df2017 %>%
   arrange(hs, time)
 
 # get data, takes time
+df2016m <- export_to_country(5700, 6, 2016)
+
 df2018m <- export_to_country(5700, 6, 2018)
 
 df2019m <- export_to_country(5700, 6, 2019)
 
 # combine data
-df_m <- df2017m %>% 
+df_m <- df2016m %>% 
+  bind_rows(df2017m) %>% 
   bind_rows(df2018m) %>% 
   bind_rows(df2019m)
 
@@ -475,7 +478,7 @@ hs_category <- hs_category %>%
   select(-starts_with("tariff"), -double)
 
 ```
-Retaliation effective dates are April 2, July 6, August 23, September 24, 2018 for "3b", "34b", "16b" and "60b" respectively. "3b", "16b" and "60b" are falling after the effective dates. "34b" is volatile, and is falling from the peak of July-December 2017 before the effective date. "34b" includes agricultural goods like soybeans, automobiles and marine products. Non-retaliated "rest" is not growing. Overall, US exports are hurt.
+Retaliation effective dates are April 2, July 6, August 23, September 24, 2018 for "3b", "34b", "16b" and "60b" respectively. "3b", "16b" and "60b" are falling after the effective dates. "34b", which includes agricultural goods like soybeans, automobiles and marine products, is seasonal, and failed to surge in July-December 2018. Non-retaliated "rest" is not growing. Overall, US exports are hurt.
 
 ```{r line_chart, echo=FALSE}
 df_m %>% 
