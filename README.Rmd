@@ -332,7 +332,7 @@ What can I say from the chart below?
 
 1. Seasonality is observed. Chinese shares fall around March every year, as Chinese take long vacations when their New Year begins around February.
 
-1. Chinese shares in "excl" declined as of March 2019. We will see recovery after exclusion.
+1. Chinese shares in "excl" have declined. We will see recovery after exclusion.
 
 ```{r get_data, echo=FALSE, cache=FALSE, fig.width=6, fig.height=6}
 # 2017
@@ -406,7 +406,7 @@ ggsave(filename = "output/chinese-shares.pdf",
 
 ```
 
-To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b" from which "excl" is excluded. As the shares in "rest" is comparable to those of "excl", USTR will receive massive product exclusion requests, if they impose tariffs on "rest".
+To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b" from which "excl" is excluded. As the shares in "rest" are as high as those of "excl", USTR will receive massive product exclusion requests, if they impose tariffs on "rest".
 
 
 ```{r boxplot, echo=FALSE, warning=FALSE, fig.width=6, fig.height=6}

@@ -141,17 +141,12 @@ What can I say from the chart below?
     year, as Chinese take long vacations when their New Year begins
     around February.
 
-6.  Chinese shares in “excl” declined as of March 2019. We will see
-    recovery after exclusion.
+6.  Chinese shares in “excl” have declined. We will see recovery 
+    after exclusion.
 
 ![](README_files/figure-gfm/get_data-1.png)<!-- -->
 
-To confirm the point \#1 above, I draw the distribution of 2018 Chinese
-shares in HTS 10 digit goods by each tariff schedule category. Chinese
-shares in “excl” are much higher than “34b” from which “excl” is
-excluded. As the shares in “rest” is comparable to those of “excl”, USTR
-will receive massive product exclusion requests, if they impose tariffs
-on “rest”.
+To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b" from which "excl" is excluded. As the shares in "rest" are as high as those of "excl", USTR will receive massive product exclusion requests, if they impose tariffs on "rest".
 
 ![](README_files/figure-gfm/boxplot-1.png)<!-- -->
 
