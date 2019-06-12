@@ -5,14 +5,21 @@ Mitsuo Shiota
 
   - [Summary](#summary)
   - [Libraries and functions](#libraries-and-functions)
-  - [Extract HTS 8 digit codes from pdf
-    files](#extract-hts-8-digit-codes-from-pdf-files)
+  - [Extract HTS 8 digit codes from USTR
+    lists](#extract-hts-8-digit-codes-from-ustr-lists)
+  - [Extract HTS 10 digit codes from exclusion
+    lists](#extract-hts-10-digit-codes-from-exclusion-lists)
   - [Get international trade data, and confirm USTR
     claims](#get-international-trade-data-and-confirm-ustr-claims)
+  - [How much imports are excluded so
+    far?](#how-much-imports-are-excluded-so-far)
   - [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2019-05-14
+Updated: 2019-06-12
+
+I added a category “excl” which are excluded from imposed tariffs by
+USTR.
 
 I added an analysis of Chinese retariation tariff lists in [another
 page](China-hits-back.md).
@@ -27,7 +34,10 @@ I added an analysis of who pays tariffs in [another page](Who-pays.md).
     pdf](output/chinese-shares2.pdf)
 
 I extract 8 digit HTS (Harmonized Tariff Scedule of the United States)
-codes from the three USTR documents (pdf format) I download.
+codes from the three USTR documents (pdf format). I also extract 10
+digit HTS codes from granted product exclusion lists. These lists can be
+found on [this USTR
+page](https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/record-section-301).
 
 Next, I get data via API from [Census Bureau U.S. International Trade
 Data](https://www.census.gov/foreign-trade/data/), and confirm the each
@@ -35,10 +45,10 @@ list is really worth 34, 16 and 200 billion dollars respectively. [On
 the contrary, I can’t confirm each Chinese tariff list is worth 3, 34,
 16 and 60 billion dollars they claim.](China-hits-back.Rmd)
 
-I calculate the Chinese shares on those tariff-imposed goods and on
-not-imposed goods, and look at the shares movements from January 2017 to
-now to know how much trade diversion is going. I also draw a boxplot of
-Chinese shares in HTS 8 digit imports in 2018.
+I calculate the Chinese shares on those tariff-imposed goods, excluded
+goods and not-imposed goods, and look at the shares movements from
+January 2017 to now to know how much trade diversion is going. I also
+draw a boxplot of Chinese shares in HTS 10 digit imports in 2018.
 
 ## Libraries and functions
 
@@ -46,176 +56,25 @@ As usual, I attach tidyverse package. Although I don’t attach, I use
 pdftools package to read pdf files, keyring package to input API Key,
 and httr package to get data from URL. Although I have found censusapi
 package, I don’t use it, as I failed to find the arguments appropriate
-for the international trade
-    data.
-
-``` r
-library(tidyverse)
-```
-
-    ## -- Attaching packages -------------------------------------------- tidyverse 1.2.1 --
-
-    ## √ ggplot2 3.1.1       √ purrr   0.3.2  
-    ## √ tibble  2.1.1       √ dplyr   0.8.0.1
-    ## √ tidyr   0.8.3       √ stringr 1.4.0  
-    ## √ readr   1.3.1       √ forcats 0.4.0
-
-    ## -- Conflicts ----------------------------------------------- tidyverse_conflicts() --
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
+for the international trade data.
 
 I make functions to facilitate data transformation and acquisition.
 
-``` r
-# name an unnamed list like V1, V2, V3 ...
-name_list <- function(list) {
-  names(list) <- paste0("V", seq_along(list))
-  
-  list
-}
-
-# transform response list to df
-res2df <- function(response) {
-  res_content <- httr::content(response)
-  
-  df <- res_content[-1] %>% 
-    map_dfr(name_list)
-  
-  names(df) <- unlist(res_content[[1]])
-  
-  df
-}
-
-# transform df to 3 column df of time, hs8, value
-sum2hs8 <- function(df) {
-    df$GEN_CIF_MO <- as.numeric(df$GEN_CIF_MO)
-    
-    df$time <- as.Date(paste0(df$time, "-01"), "%Y-%m-%d")
-    
-    df %>% 
-      mutate(
-        hs8 = str_sub(I_COMMODITY, end = -3L) # cut codes from 10 to 8 digits
-      ) %>% 
-      # summarize because cutting codes may have created duplication
-      group_by(time, hs8) %>% 
-      summarize(value = sum(GEN_CIF_MO)) %>% 
-      ungroup() %>% 
-      select(time, hs8, value) %>% 
-      arrange(hs8, time)
-  }
-
-# get country import data by year
-import_from_country <- function(country, year) {
-  response <- httr::GET(
-    url = "https://api.census.gov/data/timeseries/intltrade/imports/hs",
-    query = list(
-      get="GEN_CIF_MO,I_COMMODITY",
-      time=year,
-      CTY_CODE=country,
-      COMM_LVL="HS10",
-      key=keyring::key_get("census")
-    )
-  )
-  
-  df <- res2df(response)
-  
-  df %>% 
-    sum2hs8()
-}
-
-# get total import data by year
-import_total <- function(year) {
-  response <- httr::GET(
-    url = "https://api.census.gov/data/timeseries/intltrade/imports/hs",
-    query = list(
-      get="GEN_CIF_MO,I_COMMODITY",
-      time=year,
-      COMM_LVL="HS10",
-      SUMMARY_LVL2="HS",
-      key=keyring::key_get("census")
-    )
-  )
-  
-  df <- res2df(response)
-  
-  df %>% 
-    sum2hs8()
-}
-```
-
-## Extract HTS 8 digit codes from pdf files
+## Extract HTS 8 digit codes from USTR lists
 
 pdftools::pdf\_text lets me scan a pdf file by page. stringr package in
 tidyverse helps me to extract 8 digits.
-
-``` r
-hts <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{2})"
-
-# First tranche 34 billion dollars, 25 percent, effective on July 6, 2018
-# https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/june/ustr-issues-tariffs-chinese-products
-
-url <- "https://ustr.gov/sites/default/files/2018-13248.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-```
-
-``` r
-text <- pdftools::pdf_text(tf)
-
-tariff_list_34b <- text[5:9] %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
-
-df_list_34b <- tibble(tariff = "34b", hs8 = tariff_list_34b)
-
-# Second tranche 16 billion dollars, 25 percent, August 23, 2018
-# https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/august/ustr-finalizes-second-tranche
-
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/Final%20Second%20Tranche.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-```
-
-``` r
-text <- pdftools::pdf_text(tf)
-
-tariff_list_16b <- text %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
-
-df_list_16b <- tibble(tariff = "16b", hs8 = tariff_list_16b)
-
-# 200 billion dollars, 10 percent, September 24, 2018
-# https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/september/ustr-finalizes-tariffs-200
-
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/Tariff%20List-09.17.18.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-```
-
-``` r
-text <- pdftools::pdf_text(tf)
-
-tariff_list_200b <- text[1:(length(text) - 2)] %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
-
-df_list_200b <- tibble(tariff = "200b", hs8 = tariff_list_200b)
-```
 
 USTR says the numbers of HTS 8 digit items are 818, 279 and 5745 for the
 first tranche 34b, the second tranche 16b and the last 200b,
 respectively. My caluculation says the numbers are 818, 280 and 5743.
 Although there are small differences, I think I can ignore.
+
+## Extract HTS 10 digit codes from exclusion lists
+
+USTR announces exclusions periodically on
+<https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/record-section-301>.
+Exclusions are specified by HTS 10 digit codes.
 
 ## Get international trade data, and confirm USTR claims
 
@@ -223,12 +82,6 @@ Following the recommendation in [Internatinal Trade Data API User
 Guide](https://www.census.gov/foreign-trade/reference/guides/Guide%20to%20International%20Trade%20Datasets.pdf)
 provided by the US Census Bureau, I register API Key. keyring package
 allows me to input API Key, and use it, without making it public.
-
-``` r
-keyring::key_set("census")
-```
-
-    ## Please enter password in TK window (Alt+Tab)
 
 I struggle with which table I should use, and reach [this
 page](https://www.census.gov/data/developers/data-sets/international-trade.html).
@@ -242,38 +95,27 @@ I get to know the country code of China is 5700 from [this
 page](https://www.census.gov/foreign-trade/schedules/c/countryname.html).
 OK, let us get data. Each download takes approximately half a minute.
 
-``` r
-df2018 <- import_from_country(country = 5700, year = 2018)
-
-real34b <- df2018 %>% 
-  semi_join(df_list_34b, by = "hs8") %>% 
-  summarize(sum = sum(value)) %>% 
-  as.numeric()
-
-real16b <- df2018 %>% 
-  semi_join(df_list_16b, by = "hs8") %>% 
-  summarize(sum = sum(value)) %>% 
-  as.numeric()
-
-real200b <- df2018 %>% 
-  semi_join(df_list_200b, by = "hs8") %>% 
-  summarize(sum = sum(value)) %>% 
-  as.numeric()
-```
-
 Using the tariff lists of 8 digit HTS codes I extracted before, I check
 if 2018 imports are really worth as much as 34, 16 and 200 billion
 dollars as USTR claims. According to my calculation, 2018 imports are
-31.7, 15.2 and 193 billion dollars. Ratios to the USTR claims are 0.93,
+32.2, 15.2 and 193 billion dollars. Ratios to the USTR claims are 0.95,
 0.95 and 0.97. Little bit smaller, but basically confirm the USTR
 claims.
+
+## How much imports are excluded so far?
+
+So far USTR announced exclusion lists 5 times. They specify products
+simply by HTS 10 digit code, or by product description and HTS 10 digit
+code it belong to. When I caluculate simply by HTS 10 digit code,
+exclusions amount to 9.8 billion dollars annually.
 
 ## Look at the Chinese share movements
 
 I get imports from China and total imports from January 2017 up to now,
-and calculate Chinese shares in imports in each category that is 34b,
-16b, 200b imposed tariffs effective on July 6, 2018, August 23, 2018,
-and September 24, 2018, and the rest which is not imposed tariffs.
+and calculate Chinese shares in imports in each category that is “34b”,
+“16b”, “200b” imposed tariffs effective on July 6, 2018, August 23,
+2018, and September 24, 2018, “excl” which is excluded from “34b”, and
+“the rest” which is not imposed tariffs.
 
 What can I say from the chart below?
 
@@ -299,10 +141,17 @@ What can I say from the chart below?
     year, as Chinese take long vacations when their New Year begins
     around February.
 
+6.  Chinese shares in “excl” declined as of March 2019. We will see
+    recovery after exclusion.
+
 ![](README_files/figure-gfm/get_data-1.png)<!-- -->
 
 To confirm the point \#1 above, I draw the distribution of 2018 Chinese
-shares in HTS 8 digit goods by each tariff schedule category.
+shares in HTS 10 digit goods by each tariff schedule category. Chinese
+shares in “excl” are much higher than “34b” from which “excl” is
+excluded. As the shares in “rest” is comparable to those of “excl”, USTR
+will receive massive product exclusion requests, if they impose tariffs
+on “rest”.
 
 ![](README_files/figure-gfm/boxplot-1.png)<!-- -->
 
