@@ -1,0 +1,256 @@
+---
+title: "China hits back, calculated from China data, not from the US data"
+author: "Mitsuo Shiota"
+date: "2019-06-18"
+output: 
+  github_document:
+    toc: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Updated: `r Sys.Date()`
+
+## Summary
+
+Since [I guessed that Chinese calculated their retaliation values on HS 6 digit codes by ignoring 8 digit codes based on the data from the US customs](China-hits-back.md), I have looked for the data from China customs, and found [UN Comtrade](https://comtrade.un.org/) has HS 6 digit code data reported by China.
+
+
+## Libraries
+
+As usual, I load tidyverse package.
+
+```{r r libraries, include=FALSE}
+library(tidyverse)
+
+```
+
+I prepare some functions.
+
+```{r functions, echo=FALSE}
+# download to temporary pdf file, and scratch text from pdf
+url2text <- function(url) {
+  tf <- tempfile(fileext = ".pdf")
+  
+  httr::GET(url, httr::write_disk(tf))
+  
+  pdftools::pdf_text(tf)
+}
+
+# scratch pattern from text
+text2df <- function(text, pattern, tariff) {
+  tariff_list <- text %>% 
+    str_extract_all(pattern) %>% 
+    unlist() %>% 
+    str_replace("0+$", "")
+  
+  tibble(hs = tariff_list, tariff = tariff)
+}
+
+```
+
+## Get retaliation tariff lists in HS 8 digit codes
+
+I download Excel and PDF files from the Chinese government sites. I scratch HS 8 digit codes from those files. And I get the tariff list of each iteration or tranche like "3b", "34b", "16b" and "60b".
+
+The difference from [the original study](China-hits-back.md) in this part is that I don't omit 0s in the codes in the right.
+
+```{r df_list, echo=FALSE, results="hide", cache=FALSE}
+# Retariation to Iron and Aluminium
+# http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201804/t20180401_2857769.html
+# url <- "http://http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201804/P020180401856022545193.xlsx"
+# httr::GET(url, httr::write_disk(tf <- tempfile(fileext = ".xlsx")))
+
+res <- readxl::read_excel("data/P020180401856022545193.xlsx", col_names = TRUE, skip = 4)
+
+names(res) <- c("item_number", "hs", "description", "rates")
+
+df_list_3b <- res %>% 
+  select(hs)
+
+nrow(df_list_3b) # 128
+
+df_list_3b$tariff <- "3b"
+
+# Tariff lists in HS 8 digit codes
+hs <- "\\d{8}"
+
+# US first tranche 34 billion dollars, 25 percent, effective on July 6, 2018
+# http://www.mofcom.gov.cn/article/ae/ai/201806/20180602756389.shtml
+# Retariation by China is the same amount
+text <- url2text("http://images.mofcom.gov.cn/www/201806/20180616015345014.pdf")
+
+df_list_34b <- text2df(text, hs, "34b")
+
+nrow(df_list_34b) # 545
+
+
+# US second tranche 16 billion dollars, 25 percent, August 23, 2018
+# Retariation by China is the same amount
+text <- url2text("http://images.mofcom.gov.cn/www/201806/20180616015405568.pdf")
+
+df_list_16b <- text2df(text, hs, "16b")
+
+nrow(df_list_16b) # 114
+
+# US 200 billion dollars, 10 percent, September 24, 2018
+# Retariation by China is 60 billion dollars in 4 groups
+# http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201808/t20180803_2980950.html
+# Group 1, 25 percent
+text <- url2text("http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201808/P020180803711628159425.pdf")
+
+df_list_60b_1 <- text2df(text, hs, "60b")
+
+nrow(df_list_60b_1) # 2494, different from 2493
+
+df_list_60b_1 <- df_list_60b_1 %>%
+  unique()
+
+nrow(df_list_60b_1) # 2493
+
+# 200 billion dollars, 10 percent, September 24, 2018
+# Retariation by China is 60 billion dollars in 4 groups
+# Group 2, 20 percent
+text <- url2text("http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201808/P020180803711628507212.pdf")
+
+df_list_60b_2 <- text2df(text, hs, "60b")
+
+nrow(df_list_60b_2) # 1078
+
+# 200 billion dollars, 10 percent, September 24, 2018
+# Retariation by China is 60 billion dollars in 4 groups
+# Group 3, 10 percent
+text <- url2text("http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201808/P020180803711628844240.pdf")
+
+df_list_60b_3 <- text2df(text, hs, "60b")
+
+nrow(df_list_60b_3) # 974
+
+# 200 billion dollars, 10 percent, September 24, 2018
+# Retariation by China is 60 billion dollars in 4 groups
+# Group 4, 5 percent
+text <- url2text("http://gss.mof.gov.cn/zhengwuxinxi/zhengcefabu/201808/P020180803711629144210.pdf")
+
+df_list_60b_4 <- text2df(text, hs, "60b")
+
+nrow(df_list_60b_4) # 662
+
+# Combine 60B
+df_list_60b <- df_list_60b_1 %>% 
+  bind_rows(df_list_60b_2) %>% 
+  bind_rows(df_list_60b_3) %>% 
+  bind_rows(df_list_60b_4)
+
+```
+
+## Cut 8 to 6 digit codes
+
+I cut HS codes from 8 to 6 digits.
+
+```{r list_6, echo=FALSE}
+df_list_3b_6 <- df_list_3b %>% 
+  mutate(
+    hs = hs %>% str_sub(end = 6L)
+  ) %>% 
+  unique()
+
+df_list_34b_6 <- df_list_34b %>% 
+  mutate(
+    hs = hs %>% str_sub(end = 6L)
+  ) %>% 
+  unique()
+
+df_list_16b_6 <- df_list_16b %>% 
+  mutate(
+    hs = hs %>% str_sub(end = 6L)
+  ) %>% 
+  unique()
+
+df_list_60b_6 <- df_list_60b %>% 
+  mutate(
+    hs = hs %>% str_sub(end = 6L)
+  ) %>% 
+  unique()
+
+```
+
+## Get China import from US data in 2017 in HS 6 digit codes
+
+I get the id's of both China and the US by basically following [Using the UN Comtrade data API with R](https://comtrade.un.org/Data/Doc/api/ex/r) page.
+
+```{r get_country_id, cache=FALSE}
+string <- "http://comtrade.un.org/data/cache/partnerAreas.json"
+
+reporters <- jsonlite::fromJSON(string)
+
+reporters$results %>% 
+  filter(text %in% c("China", "USA"))
+
+```
+I make query to extract China import from the US on HS 6 digit in 2017.
+
+```{r get 6 digit data, cache=FALSE}
+q_list <- list(
+  max=50000,
+  type="C",
+  freq="A",
+  px="HS",
+  ps=2017,
+  r=156,
+  p=842,
+  rg=1,
+  cc="AG6",
+  fmt="json"
+)
+
+response <- httr::GET(
+  url = "http://comtrade.un.org/api/get",
+  query = q_list
+)
+
+res <- httr::content(response)
+
+df2017_6 <- res$dataset %>% 
+  map_dfr(~ list(hs = .x$cmdCode,
+                 value = .x$TradeValue))
+
+total <- df2017_6 %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000 
+
+```
+China imports from US in 2017 amount to `r round(total, 0)` billion dollars in total. I have got data by HS 6 digit codes in "df2017_6", a data frame of 2 columns of "hs" and "value."
+
+
+```{r value_6, echo=FALSE}
+value_3b_6 <- df2017_6 %>% 
+  semi_join(df_list_3b_6, by = "hs") %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000
+  
+value_34b_6 <- df2017_6 %>% 
+  semi_join(df_list_34b_6, by = "hs") %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000
+
+value_16b_6 <- df2017_6 %>% 
+  semi_join(df_list_16b_6, by = "hs") %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000
+
+value_60b_6 <- df2017_6 %>% 
+  semi_join(df_list_60b_6, by = "hs") %>% 
+  summarize(value = sum(value)) %>% 
+  as.numeric() / 1000000000
+
+```
+
+The results in "3b", "34b", "16b" and "60b" are `r round(value_3b_6, 2)`, `r round(value_34b_6, 2)`, `r round(value_16b_6, 2)` and `r round(value_60b_6, 2)` billion dollars respectively. Ratios to the Chinese claims are `r round(value_3b_6 / 3, 2)`, `r round(value_34b_6 / 34, 2)`, `r round(value_16b_6 / 16, 2)` and `r round(value_60b_6 / 60, 2)`.
+
+These numbers, which are calculated from the data reported by China, support my guess that Chinese calculated their retaliation values on HS 6 digit codes by ignoring 8 digit codes. However, I can't be completely sure, until I get China customs data by HS 8 digit. [IHS Markit's Global Trade Atlas](https://www.gtis.com/English/GTIS_GTA.html) has them, but so far I failed to extract data. Instead I have found that IHS Markit prohibits direct access via API. Sigh.
+
+
+EOL
