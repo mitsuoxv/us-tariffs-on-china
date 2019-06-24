@@ -14,6 +14,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 Updated: `r Sys.Date()`
 
+## Correction
+
+I now believe that ["China hits back as much as the size of its claim"](https://github.com/mitsuoxv/us-tariffs-on-china/blob/master/China-hits-back3.md). I have learnt that HS 6 digit code values are not completely comparable between the US and China.
+
 ## Summary
 
 After [I confirmed the USTR's claims on how much imports from China are affected by the tariffs they impose](README.md), I now turn to the Chinese claims on how much imports from the United States are affected by the retaliation tariffs they impose.

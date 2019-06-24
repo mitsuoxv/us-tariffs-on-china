@@ -16,7 +16,11 @@ Mitsuo Shiota
   - [Even if retaliation size is less than claimed, US exports are
     hurt](#even-if-retaliation-size-is-less-than-claimed-us-exports-are-hurt)
 
-Updated: 2019-05-16
+Updated: 2019-06-24
+
+## Correction
+
+I now believe that ["China hits back as much as the size of its claim"](https://github.com/mitsuoxv/us-tariffs-on-china/blob/master/China-hits-back3.md). I have learnt that HS 6 digit code values are not completely comparable between the US and China.
 
 ## Summary
 

@@ -11,7 +11,7 @@ Mitsuo Shiota
   - [Get China import from US data in 2017 in HS 6 digit
     codes](#get-china-import-from-us-data-in-2017-in-hs-6-digit-codes)
 
-Updated: 2019-06-18
+Updated: 2019-06-24
 
 ## Summary
 
@@ -26,6 +26,30 @@ digit code data reported by China.
 As usual, I load tidyverse package.
 
 I prepare some functions.
+
+CORRECTION: I mistakenly let text2df function drop 0s in the right. This error makes matching failures, and reduces the calculated retaliation values. For the record, I leave this error uncorrected. For the corrected version, look for [a new .Rmd file](https://github.com/mitsuoxv/us-tariffs-on-china/blob/master/China-hits-back3.Rmd) and [a new .md file](https://github.com/mitsuoxv/us-tariffs-on-china/blob/master/China-hits-back3.md).
+
+``` r
+# download to temporary pdf file, and scratch text from pdf
+url2text <- function(url) {
+  tf <- tempfile(fileext = ".pdf")
+  
+  httr::GET(url, httr::write_disk(tf))
+  
+  pdftools::pdf_text(tf)
+}
+
+# scratch pattern from text
+text2df <- function(text, pattern, tariff) {
+  tariff_list <- text %>% 
+    str_extract_all(pattern) %>% 
+    unlist() %>% 
+    str_replace("0+$", "")
+  
+  tibble(hs = tariff_list, tariff = tariff)
+}
+
+```
 
 ## Get retaliation tariff lists in HS 8 digit codes
 
@@ -99,12 +123,6 @@ The results in “3b”, “34b”, “16b” and “60b” are 2.97, 30.12, 11.
 51.35 billion dollars respectively. Ratios to the Chinese claims are
 0.99, 0.89, 0.69 and 0.86.
 
-These numbers, which are calculated from the data reported by China,
-support my guess that Chinese calculated their retaliation values on HS
-6 digit codes by ignoring 8 digit codes. However, I can’t be completely
-sure, until I get China customs data by HS 8 digit. [IHS Markit’s Global
-Trade Atlas](https://www.gtis.com/English/GTIS_GTA.html) has them, but
-so far I failed to extract data. Instead I have found that IHS Markit
-prohibits direct access via API. Sigh.
+CORRECTION: These numbers are miscaluculated due to an error in text2df function, and are less than correct numbers. For correct numbers, please refer to [a new page](https://github.com/mitsuoxv/us-tariffs-on-china/blob/master/China-hits-back3.md).
 
 EOL

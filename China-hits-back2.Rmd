@@ -30,7 +30,9 @@ library(tidyverse)
 
 I prepare some functions.
 
-```{r functions, echo=FALSE}
+CORRECTION: I mistakenly let text2df function drop 0s in the right. This error makes matching failures, and reduces the calculated retaliation values. For the record, I leave this error uncorrected. For the corrected version, look for [a new .Rmd file](https://github.com/mitsuoxv/us-tariffs-on-china/blob/master/China-hits-back3.Rmd) and [a new .md file](https://github.com/mitsuoxv/us-tariffs-on-china/blob/master/China-hits-back3.md).
+
+```{r functions}
 # download to temporary pdf file, and scratch text from pdf
 url2text <- function(url) {
   tf <- tempfile(fileext = ".pdf")
@@ -250,7 +252,6 @@ value_60b_6 <- df2017_6 %>%
 
 The results in "3b", "34b", "16b" and "60b" are `r round(value_3b_6, 2)`, `r round(value_34b_6, 2)`, `r round(value_16b_6, 2)` and `r round(value_60b_6, 2)` billion dollars respectively. Ratios to the Chinese claims are `r round(value_3b_6 / 3, 2)`, `r round(value_34b_6 / 34, 2)`, `r round(value_16b_6 / 16, 2)` and `r round(value_60b_6 / 60, 2)`.
 
-These numbers, which are calculated from the data reported by China, support my guess that Chinese calculated their retaliation values on HS 6 digit codes by ignoring 8 digit codes. However, I can't be completely sure, until I get China customs data by HS 8 digit. [IHS Markit's Global Trade Atlas](https://www.gtis.com/English/GTIS_GTA.html) has them, but so far I failed to extract data. Instead I have found that IHS Markit prohibits direct access via API. Sigh.
-
+CORRECTION: These numbers are miscaluculated due to an error in text2df function, and are less than correct numbers. For correct numbers, please refer to [a new page](https://github.com/mitsuoxv/us-tariffs-on-china/blob/master/China-hits-back3.md).
 
 EOL
