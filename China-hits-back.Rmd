@@ -56,25 +56,6 @@ text2df <- function(text, pattern, tariff) {
   tibble(hs = tariff_list, tariff = tariff)
 }
 
-# name an unnamed list like V1, V2, V3 ...
-name_list <- function(list) {
-  names(list) <- paste0("V", seq_along(list))
-  
-  list
-}
-
-# transform response list to df
-res2df <- function(response) {
-  res_content <- httr::content(response)
-  
-  df <- res_content[-1] %>% 
-    map_dfr(name_list)
-  
-  names(df) <- unlist(res_content[[1]])
-  
-  df
-}
-
 # get country export data by year and by specified HTS digits (1-10)
 export_to_country <- function(country, hs_digits, year) {
   try(if(hs_digits < 1 | hs_digits > 10) stop("hs_digits must be between 1 and 10"))
@@ -85,19 +66,15 @@ export_to_country <- function(country, hs_digits, year) {
                     )
   )
   
-  response <- httr::GET(
-    url = "https://api.census.gov/data/timeseries/intltrade/exports/hs",
-    query = list(
-      get="ALL_VAL_MO,E_COMMODITY",
-      time=year,
-      CTY_CODE=country,
-      COMM_LVL=str_c("HS", digits),
-      key=keyring::key_get("census")
+  df <- censusapi::getCensus(
+    name = "timeseries/intltrade/exports/hs",
+    key = keyring::key_get("census"),
+    vars = c("ALL_VAL_MO", "E_COMMODITY"),
+    time = year,
+    CTY_CODE = country,
+    COMM_LVL = str_c("HS", digits)
     )
-  )
-  
-  df <- res2df(response)
-  
+
   df$ALL_VAL_MO <- as.numeric(df$ALL_VAL_MO)
   
   df$time <- as.Date(paste0(df$time, "-01"), "%Y-%m-%d")

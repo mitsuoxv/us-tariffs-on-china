@@ -14,9 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 Updated: `r Sys.Date()`
 
+I began to use censusapi package.
+
 I added a category "excl" which are excluded from imposed tariffs by USTR.
 
-I added an analysis of Chinese retariation tariff lists in [another page](China-hits-back.md).
+I added an analysis of Chinese retariation tariff lists in [another page](China-hits-back3.md).
 
 I added an analysis of who pays tariffs in [another page](Who-pays.md).
 
@@ -25,15 +27,15 @@ I added an analysis of who pays tariffs in [another page](Who-pays.md).
 - [Chinese shares in US imports in tariff imposed goods and others in pdf](output/chinese-shares.pdf)
 - [Chinese shares in HTS 8 digit imports by tariff schedule (2018) in pdf](output/chinese-shares2.pdf)
 
-I extract 8 digit HTS (Harmonized Tariff Scedule of the United States) codes from the three USTR documents (pdf format). I also extract 10 digit HTS codes from granted product exclusion lists. These lists can be found on [this USTR page](https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/record-section-301).
+I extract 8 digit HTS (Harmonized Tariff Scedule of the United States) codes from the three USTR documents (pdf format). I also extract 10 digit HTS codes from granted product exclusion lists. These lists can be found on [this USTR page](https://ustr.gov/issue-areas/enforcement/section-301-investigations/tariff-actions).
 
-Next, I get data via API from [Census Bureau U.S. International Trade Data](https://www.census.gov/foreign-trade/data/), and confirm the each list is  really worth 34, 16 and 200 billion dollars respectively. [On the contrary, I can't confirm each Chinese tariff list is worth 3, 34, 16 and 60 billion dollars they claim.](China-hits-back.Rmd)
+Next, I get data via API from [Census Bureau U.S. International Trade Data](https://www.census.gov/foreign-trade/data/), and confirm the each list is  really worth 34, 16 and 200 billion dollars respectively.
 
 I calculate the Chinese shares on those tariff-imposed goods, excluded goods and not-imposed goods, and look at the shares movements from January 2017 to now to know how much trade diversion is going. I also draw a boxplot of Chinese shares in HTS 10 digit imports in 2018.
 
 ## Libraries and functions
 
-As usual, I attach tidyverse package. Although I don't attach, I use pdftools package to read pdf files, keyring package to input API Key, and httr package to get data from URL. Although I have found censusapi package, I don't use it, as I failed to find the arguments appropriate for the international trade data.
+As usual, I attach tidyverse package. Although I don't attach, I use pdftools package to read pdf files, keyring package to input API Key, and httr package to get data from URL. As I have found that censusapi package works, I use it.
 
 ```{r libraries, include=FALSE}
 library(tidyverse)
@@ -43,25 +45,6 @@ library(tidyverse)
 I make functions to facilitate data transformation and acquisition.
 
 ```{r self-made functions, echo=FALSE}
-# name an unnamed list like V1, V2, V3 ...
-name_list <- function(list) {
-  names(list) <- paste0("V", seq_along(list))
-  
-  list
-}
-
-# transform response list to df
-res2df <- function(response) {
-  res_content <- httr::content(response)
-  
-  df <- res_content[-1] %>% 
-    map_dfr(name_list)
-  
-  names(df) <- unlist(res_content[[1]])
-  
-  df
-}
-
 # transform df to 4 column df of time, hs10, hs8 and value
 sum2hs8 <- function(df) {
     df$GEN_CIF_MO <- as.numeric(df$GEN_CIF_MO)
@@ -74,44 +57,35 @@ sum2hs8 <- function(df) {
       mutate(
         hs8 = str_sub(hs10, end = -3L) # cut codes from 10 to 8 digits
       ) %>% 
-      # summarize because cutting codes may have created duplication
       select(time, hs10, hs8, value) %>% 
       arrange(hs10, time)
   }
 
 # get country import data by year
 import_from_country <- function(country, year) {
-  response <- httr::GET(
-    url = "https://api.census.gov/data/timeseries/intltrade/imports/hs",
-    query = list(
-      get="GEN_CIF_MO,I_COMMODITY",
-      time=year,
-      CTY_CODE=country,
-      COMM_LVL="HS10",
-      key=keyring::key_get("census")
+  df <- censusapi::getCensus(
+    name = "timeseries/intltrade/imports/hs",
+    key = keyring::key_get("census"),
+    vars = c("GEN_CIF_MO", "I_COMMODITY"),
+    time = year,
+    CTY_CODE = country,
+    COMM_LVL = "HS10"
     )
-  )
-  
-  df <- res2df(response)
-  
+
   df %>% 
     sum2hs8()
 }
 
 # get total import data by year
 import_total <- function(year) {
-  response <- httr::GET(
-    url = "https://api.census.gov/data/timeseries/intltrade/imports/hs",
-    query = list(
-      get="GEN_CIF_MO,I_COMMODITY",
-      time=year,
-      COMM_LVL="HS10",
-      SUMMARY_LVL2="HS",
-      key=keyring::key_get("census")
+  df <- censusapi::getCensus(
+    name = "timeseries/intltrade/imports/hs",
+    key = keyring::key_get("census"),
+    vars = c("GEN_CIF_MO", "I_COMMODITY"),
+    time = year,
+    COMM_LVL = "HS10",
+    SUMMARY_LVL2="HS"
     )
-  )
-  
-  df <- res2df(response)
   
   df %>% 
     sum2hs8()
@@ -127,7 +101,7 @@ pdftools::pdf_text lets me scan a pdf file by page. stringr package in tidyverse
 hts <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{2})"
 
 # First tranche 34 billion dollars, 25 percent, effective on July 6, 2018
-# https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/june/ustr-issues-tariffs-chinese-products
+# https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/34-billion-trade-action
 
 url <- "https://ustr.gov/sites/default/files/2018-13248.pdf"
 
@@ -145,9 +119,9 @@ tariff_list_34b <- text[5:9] %>%
 df_list_34b <- tibble(tariff = "34b", hs8 = tariff_list_34b)
 
 # Second tranche 16 billion dollars, 25 percent, August 23, 2018
-# https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/august/ustr-finalizes-second-tranche
+# https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/16-billion-trade-action
 
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/Final%20Second%20Tranche.pdf"
+url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/2018-17709.pdf"
 
 tf <- tempfile(fileext = ".pdf")
 
@@ -155,7 +129,7 @@ httr::GET(url, httr::write_disk(tf))
 
 text <- pdftools::pdf_text(tf)
 
-tariff_list_16b <- text %>% 
+tariff_list_16b <- text[4:5] %>% 
   str_extract_all(hts) %>% 
   unlist() %>% 
   str_replace_all("\\.", "")
@@ -163,9 +137,9 @@ tariff_list_16b <- text %>%
 df_list_16b <- tibble(tariff = "16b", hs8 = tariff_list_16b)
 
 # 200 billion dollars, 10 percent, September 24, 2018
-# https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/september/ustr-finalizes-tariffs-200
+# https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/200-billion-trade-action
 
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/Tariff%20List-09.17.18.pdf"
+url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/Tariff%20List%20%2883%20FR%2047974%2C%20as%20amended%20and%20modified%20by%2083%20FR%2049153%29.pdf"
 
 tf <- tempfile(fileext = ".pdf")
 
@@ -186,14 +160,14 @@ USTR says the numbers of HTS 8 digit items are 818, 279 and 5745 for the first t
 
 ## Extract HTS 10 digit codes from exclusion lists
 
-USTR announces exclusions periodically on https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/record-section-301. Exclusions are specified by HTS 10 digit codes.
+USTR announces exclusions periodically. Exclusions are specified by HTS 10 digit codes.
 
 ```{r exclusions, echo=FALSE, results="hide", cache=FALSE}
 hts <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{4})"
 
-exclusion_list <- vector("list", length = 5)
+exclusion_list <- vector("list", length = 8)
 
-# granted December 21, 2018
+# 34b: granted December 21, 2018
 url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/2018-28277.pdf"
 
 tf <- tempfile(fileext = ".pdf")
@@ -263,6 +237,48 @@ exclusion_list[[5]] <- text %>%
   unlist() %>% 
   str_replace_all("\\.", "")
 
+# granted July 9, 2019
+url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Product_Exclusions.pdf"
+
+tf <- tempfile(fileext = ".pdf")
+
+httr::GET(url, httr::write_disk(tf))
+
+text <- pdftools::pdf_text(tf)
+
+exclusion_list[[6]] <- text %>% 
+  str_extract_all(hts) %>% 
+  unlist() %>% 
+  str_replace_all("\\.", "")
+
+# 16b: granted July 31, 2019
+url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/16_Billion_Exclusions_Granted.pdf"
+
+tf <- tempfile(fileext = ".pdf")
+
+httr::GET(url, httr::write_disk(tf))
+
+text <- pdftools::pdf_text(tf)
+
+exclusion_list[[7]] <- text %>% 
+  str_extract_all(hts) %>% 
+  unlist() %>% 
+  str_replace_all("\\.", "")
+
+# 200b: granted August 2, 2019
+url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/200_Billion_Exclusions_Granted.pdf"
+
+tf <- tempfile(fileext = ".pdf")
+
+httr::GET(url, httr::write_disk(tf))
+
+text <- pdftools::pdf_text(tf)
+
+exclusion_list[[8]] <- text[6:7] %>% 
+  str_extract_all(hts) %>% 
+  unlist() %>% 
+  str_replace_all("\\.", "")
+
 
 df_list_excl <- tibble(tariff = "excl", hs10 = exclusion_list %>% unlist() %>% unique()) %>% 
   arrange(hs10)
@@ -318,7 +334,7 @@ So far USTR announced exclusion lists `r length(exclusion_list)` times. They spe
 
 ## Look at the Chinese share movements
 
-I get imports from China and total imports from January 2017 up to now, and calculate Chinese shares in imports in each category that is "34b", "16b", "200b" imposed tariffs effective on July 6, 2018, August 23, 2018, and September 24, 2018, "excl" which is excluded from "34b", and "the rest" which is not imposed tariffs.
+I get imports from China and total imports from January 2017 up to now, and calculate Chinese shares in imports in each category that is "34b", "16b", "200b" imposed tariffs effective on July 6, 2018, August 23, 2018, and September 24, 2018, "excl" which is excluded, and "the rest" which is not imposed tariffs.
 
 What can I say from the chart below?
 
@@ -406,7 +422,7 @@ ggsave(filename = "output/chinese-shares.pdf",
 
 ```
 
-To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b" from which "excl" is excluded. As the shares in "rest" are as high as those of "excl", USTR will receive massive product exclusion requests, if they impose tariffs on "rest".
+To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b", "16b" and "200b" from which "excl" is excluded. As the shares in "rest" are as high as those of "excl", USTR will receive massive product exclusion requests, if they impose tariffs on "rest".
 
 
 ```{r boxplot, echo=FALSE, warning=FALSE, fig.width=6, fig.height=6}

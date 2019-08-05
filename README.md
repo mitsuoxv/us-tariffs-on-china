@@ -16,13 +16,15 @@ Mitsuo Shiota
   - [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2019-06-12
+Updated: 2019-08-05
+
+I began to use censusapi package.
 
 I added a category “excl” which are excluded from imposed tariffs by
 USTR.
 
 I added an analysis of Chinese retariation tariff lists in [another
-page](China-hits-back.md).
+page](China-hits-back3.md).
 
 I added an analysis of who pays tariffs in [another page](Who-pays.md).
 
@@ -37,13 +39,11 @@ I extract 8 digit HTS (Harmonized Tariff Scedule of the United States)
 codes from the three USTR documents (pdf format). I also extract 10
 digit HTS codes from granted product exclusion lists. These lists can be
 found on [this USTR
-page](https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/record-section-301).
+page](https://ustr.gov/issue-areas/enforcement/section-301-investigations/tariff-actions).
 
 Next, I get data via API from [Census Bureau U.S. International Trade
 Data](https://www.census.gov/foreign-trade/data/), and confirm the each
-list is really worth 34, 16 and 200 billion dollars respectively. [On
-the contrary, I can’t confirm each Chinese tariff list is worth 3, 34,
-16 and 60 billion dollars they claim.](China-hits-back.Rmd)
+list is really worth 34, 16 and 200 billion dollars respectively.
 
 I calculate the Chinese shares on those tariff-imposed goods, excluded
 goods and not-imposed goods, and look at the shares movements from
@@ -54,9 +54,8 @@ draw a boxplot of Chinese shares in HTS 10 digit imports in 2018.
 
 As usual, I attach tidyverse package. Although I don’t attach, I use
 pdftools package to read pdf files, keyring package to input API Key,
-and httr package to get data from URL. Although I have found censusapi
-package, I don’t use it, as I failed to find the arguments appropriate
-for the international trade data.
+and httr package to get data from URL. As I have found that censusapi
+package works, I use it.
 
 I make functions to facilitate data transformation and acquisition.
 
@@ -67,14 +66,13 @@ tidyverse helps me to extract 8 digits.
 
 USTR says the numbers of HTS 8 digit items are 818, 279 and 5745 for the
 first tranche 34b, the second tranche 16b and the last 200b,
-respectively. My caluculation says the numbers are 818, 280 and 5743.
+respectively. My caluculation says the numbers are 818, 283 and 5765.
 Although there are small differences, I think I can ignore.
 
 ## Extract HTS 10 digit codes from exclusion lists
 
-USTR announces exclusions periodically on
-<https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/record-section-301>.
-Exclusions are specified by HTS 10 digit codes.
+USTR announces exclusions periodically. Exclusions are specified by HTS
+10 digit codes.
 
 ## Get international trade data, and confirm USTR claims
 
@@ -98,23 +96,23 @@ OK, let us get data. Each download takes approximately half a minute.
 Using the tariff lists of 8 digit HTS codes I extracted before, I check
 if 2018 imports are really worth as much as 34, 16 and 200 billion
 dollars as USTR claims. According to my calculation, 2018 imports are
-32.2, 15.2 and 193 billion dollars. Ratios to the USTR claims are 0.95,
-0.95 and 0.97. Little bit smaller, but basically confirm the USTR
+32.2, 15.2 and 192.5 billion dollars. Ratios to the USTR claims are
+0.95, 0.95 and 0.96. Little bit smaller, but basically confirm the USTR
 claims.
 
 ## How much imports are excluded so far?
 
-So far USTR announced exclusion lists 5 times. They specify products
+So far USTR announced exclusion lists 8 times. They specify products
 simply by HTS 10 digit code, or by product description and HTS 10 digit
 code it belong to. When I caluculate simply by HTS 10 digit code,
-exclusions amount to 9.8 billion dollars annually.
+exclusions amount to 19 billion dollars annually.
 
 ## Look at the Chinese share movements
 
 I get imports from China and total imports from January 2017 up to now,
 and calculate Chinese shares in imports in each category that is “34b”,
 “16b”, “200b” imposed tariffs effective on July 6, 2018, August 23,
-2018, and September 24, 2018, “excl” which is excluded from “34b”, and
+2018, and September 24, 2018, “excl” which is excluded, and
 “the rest” which is not imposed tariffs.
 
 What can I say from the chart below?
@@ -141,12 +139,17 @@ What can I say from the chart below?
     year, as Chinese take long vacations when their New Year begins
     around February.
 
-6.  Chinese shares in “excl” have declined. We will see recovery 
-    after exclusion.
+6.  Chinese shares in “excl” have declined. We will see recovery after
+    exclusion.
 
 ![](README_files/figure-gfm/get_data-1.png)<!-- -->
 
-To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b" from which "excl" is excluded. As the shares in "rest" are as high as those of "excl", USTR will receive massive product exclusion requests, if they impose tariffs on "rest".
+To confirm the point \#1 above, I draw the distribution of 2018 Chinese
+shares in HTS 10 digit goods by each tariff schedule category. Chinese
+shares in “excl” are much higher than "34b", "16b" and "200b" from which “excl” is
+excluded. As the shares in “rest” are as high as those of “excl”, USTR
+will receive massive product exclusion requests, if they impose tariffs
+on “rest”.
 
 ![](README_files/figure-gfm/boxplot-1.png)<!-- -->
 
