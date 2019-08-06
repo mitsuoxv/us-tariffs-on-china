@@ -1,0 +1,179 @@
+---
+title: "Who replaces China in US imports?"
+author: "Mitsuo Shiota"
+date: "2019-08-06"
+output: 
+  github_document:
+    toc: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Updated: `r Sys.Date()`
+
+## Summary
+
+US imports from China are decreasing in 2019. If trade diversion is goin on, other countries are replacing China. In this study, I somewhat arbitrarily choose 4 candidate countries like Vietnam, Korea, Japan and Mexico, and check whether the US imports from these countries increase by HS 4 digit codes.
+
+
+## Libraries and functions
+
+I use self-made package `tqr`.
+
+```{r libraries, include=FALSE}
+# Libraries
+library(tidyverse)
+library(tsibble)
+library(tqr)
+
+# Functions
+# get country import data by year and by specified HTS digits (1-10)
+import_from_country <- function(country, hs_digits, year) {
+  try(if(hs_digits < 1 | hs_digits > 10) stop("hs_digits must be between 1 and 10"))
+  
+  digits <- if_else(hs_digits <=2, 2,
+                    if_else(hs_digits <= 4, 4,
+                            if_else(hs_digits <= 6, 6, 10)
+                    )
+  )
+  
+  df <- censusapi::getCensus(
+    name = "timeseries/intltrade/imports/hs",
+    key = keyring::key_get("census"),
+    vars = c("CTY_NAME", "GEN_CIF_MO", "I_COMMODITY"),
+    time = year,
+    CTY_CODE = country,
+    COMM_LVL=str_c("HS", digits)
+  )
+  
+  df$GEN_CIF_MO <- as.numeric(df$GEN_CIF_MO)
+  
+  df$time <- as.Date(paste0(df$time, "-01"), "%Y-%m-%d")
+  
+  df %>% 
+    rename(
+      country = CTY_NAME,
+      value = GEN_CIF_MO,
+      hs = I_COMMODITY
+    ) %>% 
+    mutate(
+      hs = str_sub(hs, end = hs_digits) # cut codes
+    ) %>% 
+    # summarize because cutting codes may have created duplication
+    group_by(country, time, hs) %>% 
+    summarize(value = sum(value)) %>% 
+    ungroup() %>% 
+    select(country, time, hs, value) %>% 
+    arrange(country, hs, time)
+}
+
+```
+## Download data
+
+I download US monthly imports from China, Vietnam, Korea, Japan and Mexico by HS 4 digit codes since 2017, convert to quartely, and fill 0s in gaps.
+
+```{r API_Key_input, include=FALSE}
+# Prepare API key
+keyring::key_set("census")
+
+```
+
+```{r download_data, echo=FALSE, cache=FALSE}
+# Download data
+# import from Vietnum and China
+# https://www.census.gov/foreign-trade/schedules/c/countryname.html
+import <- map_dfr(c(2010, 5520, 5700, 5800, 5880), import_from_country,
+                   hs_digits = 4, year = "from 2017 to 2019")
+
+# to million dollars
+import <- import %>% 
+  mutate(value = value / 1000000)
+
+# from monthly to quarterly
+import_q <- import %>% 
+  mutate(quarter = yearquarter(time)) %>% 
+  group_by(country, hs, quarter) %>% 
+  summarize(value = sum(value)) %>% 
+  ungroup()
+
+# fill 0
+import_q <- import_q %>% 
+  spread(key = country, value = value, fill = 0) %>% 
+  gather(key = "country", value = "value", -hs, -quarter)
+
+# fill 0
+import_q <- import_q %>% 
+  spread(key = hs, value = value, fill = 0) %>% 
+  gather(key = "hs", value = "value", -quarter, -country)
+
+
+```
+
+After I fill zeros in gaps, the number of rows is `r nrow(import_q)`. As it matches 5 (number of countries) times `r import_q$hs %>% unique() %>% length()` (number of unique hs goods), I can confirm there are no gaps, and safely use `tqr` package which utilizes lags.
+
+
+## Choose HS codes of which imports from China declined significantly in 2019 1Q and 2Q
+
+```{r china_loss, echo=FALSE}
+# tsibble
+import_q <- import_q %>% 
+  as_tsibble(index = quarter, key = c(country, hs))
+
+# goods of whch imports from china declines in 2019 1-2Q more than 20 percent,
+# but not 100 percent from a year earlier
+hs_china_loss <- import_q %>% 
+  filter(country == "CHINA") %>% 
+  tq_gr(n = 4) %>% 
+  as_tibble() %>% 
+  filter(quarter >= "2019-01-01", quarter <= "2019-04-01") %>% 
+  group_by(hs) %>% 
+  summarize(value = mean(value)) %>% 
+  filter(value < -20) %>% 
+  `[[`("hs")
+
+# and imports from china in 2019 2Q still more than 500 million dollars
+hs_china_loss2 <- import_q %>% 
+  filter(hs %in% hs_china_loss) %>% 
+  filter(quarter == "2019-04-01") %>% 
+  filter(value > 500) %>% 
+  `[[`("hs")
+
+```
+
+I first choose HS codes of which imports from China declined more than 20 percent in average in 2019 1Q and 2Q. Next I choose HS codes of which imports from China are still more than 500 million dollars in 2019 2Q. As a result, I choose `r hs_china_loss2 %>% length()` goods.
+
+## Draw charts of US import changes from a year earlier from each country
+
+For the goods descriptions of HS codes, refer to http://www.kanzei.or.jp/statistical/expstatis/headline/hs2dig/e/85.
+
+Most notable case is that Vietnam replaces China as a main export base of 8517 (telephone sets), probably smart phones. Smart phones are not yet imposed tariffs by the US. This replacement is caused by Samsung's strategy to expand smart phone production capacity in Vietnam, and by ZTE and Huawei losing shares in the US. 
+
+Vietnam is also advancing in 0402 (concentrated milk and cream) and 8542 (IC).
+
+Also increasing are Mexico in 0804, 0806, 0810 (fruits) and in 8421 (centrifuges), Korea in 8418 (refrigerators), and Japan in 8486 (semiconductor manufacturing equipment). 
+
+```{r draw_charts, echo=FALSE, fig.width=8, fig.height=16}
+# draw charts
+# http://www.kanzei.or.jp/statistical/expstatis/headline/hs2dig/e/85
+import_q %>% 
+  filter(hs %in% hs_china_loss2) %>% 
+  tq_diff(n = 4) %>% 
+  filter(!is.na(value)) %>% 
+  mutate(quarter = zoo::as.yearqtr(quarter)) %>% 
+  ggplot(aes(x = quarter, y = value, color = country)) +
+  zoo::scale_x_yearqtr(format = "%y %qQ") +
+  geom_hline(yintercept = 0, size = 2, color = "white") +
+  geom_line() +
+  facet_wrap(~ hs, scales = "free_y") +
+  labs(
+    title = "US import changes, quarters, YoY",
+    x = "", y = "million dollars", color = ""
+  ) +
+  theme(legend.position = "bottom")
+
+```
+
+EOL
