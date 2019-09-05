@@ -16,7 +16,7 @@ Mitsuo Shiota
   - [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2019-08-05
+Updated: 2019-09-05
 
 I began to use censusapi package.
 
@@ -105,15 +105,15 @@ claims.
 So far USTR announced exclusion lists 8 times. They specify products
 simply by HTS 10 digit code, or by product description and HTS 10 digit
 code it belong to. When I caluculate simply by HTS 10 digit code,
-exclusions amount to 19 billion dollars annually.
+exclusions amount to 16.8 billion dollars annually.
 
 ## Look at the Chinese share movements
 
 I get imports from China and total imports from January 2017 up to now,
 and calculate Chinese shares in imports in each category that is “34b”,
 “16b”, “200b” imposed tariffs effective on July 6, 2018, August 23,
-2018, and September 24, 2018, “excl” which is excluded, and
-“the rest” which is not imposed tariffs.
+2018, and September 24, 2018, “excl” which is excluded, and “the rest”
+which is not imposed tariffs.
 
 What can I say from the chart below?
 
@@ -146,10 +146,9 @@ What can I say from the chart below?
 
 To confirm the point \#1 above, I draw the distribution of 2018 Chinese
 shares in HTS 10 digit goods by each tariff schedule category. Chinese
-shares in “excl” are much higher than "34b", "16b" and "200b" from which “excl” is
-excluded. As the shares in “rest” are as high as those of “excl”, USTR
-will receive massive product exclusion requests, if they impose tariffs
-on “rest”.
+shares in “excl” are much higher than “34b”, “16b” and “200b” from which
+“excl” is excluded. As the shares in “rest” are as high as those of
+“excl”, USTR will receive massive product exclusion requests, as they imposed 15 percent tariffs on September 1, and will impose on December 15, 2019.
 
 ![](README_files/figure-gfm/boxplot-1.png)<!-- -->
 

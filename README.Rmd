@@ -91,6 +91,24 @@ import_total <- function(year) {
     sum2hs8()
 }
 
+# extract hts codes from specified pages in url and page_range
+extract_hts <- function(hts, url, page_range = NULL) {
+  tf <- tempfile(fileext = ".pdf")
+  
+  httr::GET(url, httr::write_disk(tf))
+  
+  text <- pdftools::pdf_text(tf)
+  
+  if (!is.null(page_range)) {
+    text <- text[page_range]
+  }
+  
+  text %>% 
+    str_extract_all(hts) %>% 
+    unlist() %>% 
+    str_replace_all("\\.", "")
+}
+
 ```
 
 ## Extract HTS 8 digit codes from USTR lists
@@ -98,186 +116,108 @@ import_total <- function(year) {
 pdftools::pdf_text lets me scan a pdf file by page. stringr package in tidyverse helps me to extract 8 digits.
 
 ```{r extract_digits, echo=FALSE, results="hide", cache=FALSE}
-hts <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{2})"
+hts8 <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{2})"
 
 # First tranche 34 billion dollars, 25 percent, effective on July 6, 2018
 # https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/34-billion-trade-action
 
-url <- "https://ustr.gov/sites/default/files/2018-13248.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-
-text <- pdftools::pdf_text(tf)
-
-tariff_list_34b <- text[5:9] %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
-
-df_list_34b <- tibble(tariff = "34b", hs8 = tariff_list_34b)
+df_list_34b <- tibble(
+  tariff = "34b",
+  hs8 = extract_hts(
+    hts = hts8,
+    url = "https://ustr.gov/sites/default/files/2018-13248.pdf",
+    page_range = 5:9
+    )
+  )
 
 # Second tranche 16 billion dollars, 25 percent, August 23, 2018
 # https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/16-billion-trade-action
 
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/2018-17709.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-
-text <- pdftools::pdf_text(tf)
-
-tariff_list_16b <- text[4:5] %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
-
-df_list_16b <- tibble(tariff = "16b", hs8 = tariff_list_16b)
+df_list_16b <- tibble(
+  tariff = "16b",
+  hs8 = extract_hts(
+    hts = hts8,
+    url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/2018-17709.pdf",
+    page_range = 4:5
+    )
+  )
 
 # 200 billion dollars, 10 percent, September 24, 2018
 # https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/200-billion-trade-action
 
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/Tariff%20List%20%2883%20FR%2047974%2C%20as%20amended%20and%20modified%20by%2083%20FR%2049153%29.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-
-text <- pdftools::pdf_text(tf)
-
-tariff_list_200b <- text[1:(length(text) - 2)] %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
-
-df_list_200b <- tibble(tariff = "200b", hs8 = tariff_list_200b)
+df_list_200b <- tibble(
+  tariff = "200b",
+  hs8 = extract_hts(
+    hts = hts8,
+    url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/Tariff%20List%20%2883%20FR%2047974%2C%20as%20amended%20and%20modified%20by%2083%20FR%2049153%29.pdf",
+    page_range = 1:194
+    )
+  )
 
 ```
 
-USTR says the numbers of HTS 8 digit items are 818, 279 and 5745 for the first tranche 34b, the second tranche 16b and the last 200b, respectively. My caluculation says the numbers are `r length(tariff_list_34b)`, `r length(tariff_list_16b)` and `r length(tariff_list_200b)`. Although there are small differences, I think I can ignore.
+USTR says the numbers of HTS 8 digit items are 818, 279 and 5745 for the first tranche 34b, the second tranche 16b and the last 200b, respectively. My caluculation says the numbers are `r nrow(df_list_34b)`, `r nrow(df_list_16b)` and `r nrow(df_list_200b)`. Although there are small differences, I think I can ignore.
 
 ## Extract HTS 10 digit codes from exclusion lists
 
 USTR announces exclusions periodically. Exclusions are specified by HTS 10 digit codes.
 
 ```{r exclusions, echo=FALSE, results="hide", cache=FALSE}
-hts <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{4})"
+hts10 <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{4})"
 
 exclusion_list <- vector("list", length = 8)
 
 # 34b: granted December 21, 2018
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/2018-28277.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-
-text <- pdftools::pdf_text(tf)
-
-exclusion_list[[1]] <- text[3:5] %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
+exclusion_list[[1]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/2018-28277.pdf",
+  page_range = 3:5
+  )
 
 # granted March 25, 2019
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_11152.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-
-text <- pdftools::pdf_text(tf)
-
-exclusion_list[[2]] <- text[3:6] %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
+exclusion_list[[2]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_11152.pdf",
+  page_range = 3:6
+  )
 
 # granted April 18, 2019
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_16310.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-
-text <- pdftools::pdf_text(tf)
-
-exclusion_list[[3]] <- text[3:5] %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
+exclusion_list[[3]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_16310.pdf",
+  page_range = 3:5
+  )
 
 # granted May 14, 2019
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_21389.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-
-text <- pdftools::pdf_text(tf)
-
-exclusion_list[[4]] <- text %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
+exclusion_list[[4]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_21389.pdf"
+  )
 
 # granted June 4, 2019
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_25895.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-
-text <- pdftools::pdf_text(tf)
-
-exclusion_list[[5]] <- text %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
+exclusion_list[[5]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_25895.pdf"
+  )
 
 # granted July 9, 2019
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Product_Exclusions.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-
-text <- pdftools::pdf_text(tf)
-
-exclusion_list[[6]] <- text %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
+exclusion_list[[6]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Product_Exclusions.pdf"
+  )
 
 # 16b: granted July 31, 2019
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/16_Billion_Exclusions_Granted.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-
-text <- pdftools::pdf_text(tf)
-
-exclusion_list[[7]] <- text %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
+exclusion_list[[7]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/16_Billion_Exclusions_Granted.pdf"
+  )
 
 # 200b: granted August 2, 2019
-url <- "https://ustr.gov/sites/default/files/enforcement/301Investigations/200_Billion_Exclusions_Granted.pdf"
-
-tf <- tempfile(fileext = ".pdf")
-
-httr::GET(url, httr::write_disk(tf))
-
-text <- pdftools::pdf_text(tf)
-
-exclusion_list[[8]] <- text[6:7] %>% 
-  str_extract_all(hts) %>% 
-  unlist() %>% 
-  str_replace_all("\\.", "")
+exclusion_list[[8]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/200_Billion_Exclusions_Granted.pdf",
+  page_range = 6:7
+  )
 
 
 df_list_excl <- tibble(tariff = "excl", hs10 = exclusion_list %>% unlist() %>% unique()) %>% 
@@ -358,22 +298,11 @@ df2017 <- import_from_country(5700, 2017)
 df2019 <- import_from_country(5700, 2019)
 
 # Combine data
-df_china <- df2017 %>% 
-  bind_rows(df2018) %>% 
-  bind_rows(df2019)
+df_china <- bind_rows(df2017, df2018, df2019)
 
 # Total import
 # get data, takes time
-df2017t <- import_total(2017)
-
-df2018t <- import_total(2018)
-
-df2019t <- import_total(2019)
-
-# combine data
-df_total <- df2017t %>% 
-  bind_rows(df2018t) %>% 
-  bind_rows(df2019t)
+df_total <- import_total("from 2017 to 2019")
 
 # value.x as total, value.y as china
 df_total <- df_total %>% 
@@ -422,7 +351,7 @@ ggsave(filename = "output/chinese-shares.pdf",
 
 ```
 
-To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b", "16b" and "200b" from which "excl" is excluded. As the shares in "rest" are as high as those of "excl", USTR will receive massive product exclusion requests, if they impose tariffs on "rest".
+To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b", "16b" and "200b" from which "excl" is excluded. As the shares in "rest" are as high as those of "excl", USTR will receive massive product exclusion requests, as they imposed 15 percent tariffs on September 1, and will impose on December 15, 2019.
 
 
 ```{r boxplot, echo=FALSE, warning=FALSE, fig.width=6, fig.height=6}
