@@ -122,7 +122,7 @@ hts8 <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{2})"
 # https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/34-billion-trade-action
 
 df_list_34b <- tibble(
-  tariff = "34b",
+  trf_34b = TRUE,
   hs8 = extract_hts(
     hts = hts8,
     url = "https://ustr.gov/sites/default/files/2018-13248.pdf",
@@ -134,7 +134,7 @@ df_list_34b <- tibble(
 # https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/16-billion-trade-action
 
 df_list_16b <- tibble(
-  tariff = "16b",
+  trf_16b = TRUE,
   hs8 = extract_hts(
     hts = hts8,
     url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/2018-17709.pdf",
@@ -146,11 +146,31 @@ df_list_16b <- tibble(
 # https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/200-billion-trade-action
 
 df_list_200b <- tibble(
-  tariff = "200b",
+  trf_200b = TRUE,
   hs8 = extract_hts(
     hts = hts8,
     url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/Tariff%20List%20%2883%20FR%2047974%2C%20as%20amended%20and%20modified%20by%2083%20FR%2049153%29.pdf",
     page_range = 1:194
+    )
+  )
+
+# 15 percent, September 1, 2019
+df_list_300b_a <- tibble(
+  trf_300b_a = TRUE,
+  hs8 = extract_hts(
+    hts = hts8,
+    url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Modification_%28List_4A_and_List_4B%29.pdf",
+    page_range = 4:25
+    )
+  )
+
+# 15 percent, December 15, 2019
+df_list_300b_c <- tibble(
+  trf_300b_c = TRUE,
+  hs8 = extract_hts(
+    hts = hts8,
+    url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Modification_%28List_4A_and_List_4B%29.pdf",
+    page_range = 142:145
     )
   )
 
@@ -220,9 +240,19 @@ exclusion_list[[8]] <- extract_hts(
   )
 
 
-df_list_excl <- tibble(tariff = "excl", hs10 = exclusion_list %>% unlist() %>% unique()) %>% 
+df_list_excl <- tibble(
+  trf_excl = TRUE,
+  hs10 = exclusion_list %>% unlist() %>% unique()
+  ) %>% 
   arrange(hs10)
 
+
+# save
+save(df_list_34b, df_list_16b, df_list_200b,
+     df_list_300b_a, df_list_300b_c, df_list_excl, 
+     file = "data/tariff_list.rdata")
+
+# load("data/tariff_list.rdata")
 
 ```
 
@@ -257,9 +287,21 @@ real200b <- df2018 %>%
   summarize(sum = sum(value)) %>% 
   as.numeric()
 
+real300b_a <- df2018 %>% 
+  semi_join(df_list_300b_a, by = "hs8") %>% 
+  summarize(sum = sum(value)) %>% 
+  as.numeric()
+
+real300b_c <- df2018 %>% 
+  semi_join(df_list_300b_c, by = "hs8") %>% 
+  summarize(sum = sum(value)) %>% 
+  as.numeric()
+
 ```
 
 Using the tariff lists of 8 digit HTS codes I extracted before, I check if 2018 imports are really worth as much as 34, 16 and 200 billion dollars as USTR claims. According to my calculation, 2018 imports are `r round(real34b/1000000000, 1)`, `r round(real16b/1000000000, 1)` and `r round(real200b/1000000000, 1)` billion dollars. Ratios to the USTR claims are `r round(real34b/1000000000/34, 2)`, `r round(real16b/1000000000/16, 2)` and `r round(real200b/1000000000/200, 2)`.  Little bit smaller, but basically confirm the USTR claims.
+
+2018 imports in List 4 Annex A ("300b_a", effective on September 1, 2019) and Annex C ("300b_c", will be effective on December 15, 2019) are `r round(real300b_a/1000000000, 1)` and `r round(real300b_c/1000000000, 1)` billion dollars respectively.
 
 ## How much imports are excluded so far?
 
@@ -278,7 +320,7 @@ I get imports from China and total imports from January 2017 up to now, and calc
 
 What can I say from the chart below?
 
-1. Chinese shares are the lowest in 34b, next lowest in 16b, higher in 200b and the highest in the rest, exactly the same order of imposing tariffs. I guess USTR tends to choose lower Chinese share goods to impose tariffs to avoid supply chain distruptions.
+1. Chinese shares are the lowest in 34b, next lowest in 16b, higher in 200b, even higher in 300b_a and much much higer in 300b_c, exactly the same order of imposing tariffs. Actually USTR states that they separate 300b into 300b_a and 300b_c based on whether the Chinese shares are less than 75 percent or not in [this page](https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Modification_%28List_4A_and_List_4B%29.pdf). USTR tends to choose lower Chinese share goods to impose tariffs first to avoid supply chain distruptions.
 
 1. In both 34b and 16b, Chinese shares rise just before the effective date, and decline thereafter. This pattern reflects that importers rush before and flee after.
 
@@ -315,14 +357,26 @@ df_total <- df_total %>%
   left_join(df_list_34b, by = "hs8") %>% 
   left_join(df_list_16b, by = "hs8") %>% 
   left_join(df_list_200b, by = "hs8") %>% 
+  left_join(df_list_300b_a, by = "hs8") %>% 
+  left_join(df_list_300b_c, by = "hs8") %>% 
   left_join(df_list_excl, by = "hs10") %>% 
+  replace_na(list(
+    trf_34b = FALSE,
+    trf_16b = FALSE,
+    trf_200b = FALSE,
+    trf_300b_a = FALSE,
+    trf_300b_c = FALSE,
+    trf_excl = FALSE
+  )) %>% 
   mutate(
-    category_old = if_else(!is.na(tariff.x), "34b",
-                       if_else(!is.na(tariff.y), "16b",
-                               if_else(!is.na(tariff.x.x), "200b", "rest"))),
-    category = if_else(!is.na(tariff.y.y), "excl", category_old)
+    category_old = if_else(trf_34b, "34b",
+                       if_else(trf_16b, "16b",
+                               if_else(trf_200b, "200b",
+                                       if_else(trf_300b_a, "300b_a",
+                                               if_else(trf_300b_c, "300b_c", "rest"))))),
+    category = if_else(trf_excl, "excl", category_old)
   ) %>% 
-  select(-starts_with("tariff"), -category_old) %>% 
+  select(-starts_with("trf_"), -category_old) %>% 
   rename(
     total = value.x,
     china = value.y
@@ -351,12 +405,11 @@ ggsave(filename = "output/chinese-shares.pdf",
 
 ```
 
-To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b", "16b" and "200b" from which "excl" is excluded. As the shares in "rest" are as high as those of "excl", USTR will receive massive product exclusion requests, as they imposed 15 percent tariffs on September 1, and will impose on December 15, 2019.
-
+To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b", "16b" and "200b" from which "excl" is excluded. As the shares in "300b_c" (will be effective on December 15, 2019) are much much higer than those of "excl", USTR will receive massive product exclusion requests.
 
 ```{r boxplot, echo=FALSE, warning=FALSE, fig.width=6, fig.height=6}
 df_total$category <- factor(df_total$category, 
-                            levels = c("34b", "16b", "200b", "excl","rest"))
+                            levels = c("34b", "16b", "200b", "300b_a", "300b_c", "excl","rest"))
 
 df_total %>% 
   filter(time >= "2018-01-01", time <= "2018-12-01") %>% 

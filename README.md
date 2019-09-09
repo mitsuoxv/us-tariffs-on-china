@@ -16,7 +16,7 @@ Mitsuo Shiota
   - [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2019-09-05
+Updated: 2019-09-09
 
 I began to use censusapi package.
 
@@ -100,6 +100,10 @@ dollars as USTR claims. According to my calculation, 2018 imports are
 0.95, 0.95 and 0.96. Little bit smaller, but basically confirm the USTR
 claims.
 
+2018 imports in List 4 Annex A (“300b\_a”, effective on September 1,
+2019) and Annex C (“300b\_c”, will be effective on December 15, 2019)
+are 110.4 and 160.6 billion dollars respectively.
+
 ## How much imports are excluded so far?
 
 So far USTR announced exclusion lists 8 times. They specify products
@@ -117,10 +121,13 @@ which is not imposed tariffs.
 
 What can I say from the chart below?
 
-1.  Chinese shares are the lowest in 34b, next lowest in 16b, higher in
-    200b and the highest in the rest, exactly the same order of imposing
-    tariffs. I guess USTR tends to choose lower Chinese share goods to
-    impose tariffs to avoid supply chain distruptions.
+1.  Chinese shares are the lowest in 34b, next lowest in 16b, higher in 200b,
+    even higher in 300b\_a and much much higer in 300b\_c, exactly the same 
+    order of imposing tariffs. Actually USTR states that they separate 300b
+    into 300b\_a and 300b\_c based on whether the Chinese shares are less than
+    75 percent or not in [this page](https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Modification_%28List_4A_and_List_4B%29.pdf).
+    USTR tends to choose lower Chinese share goods to impose tariffs first
+    to avoid supply chain distruptions.
 
 2.  In both 34b and 16b, Chinese shares rise just before the effective
     date, and decline thereafter. This pattern reflects that importers
@@ -147,8 +154,7 @@ What can I say from the chart below?
 To confirm the point \#1 above, I draw the distribution of 2018 Chinese
 shares in HTS 10 digit goods by each tariff schedule category. Chinese
 shares in “excl” are much higher than “34b”, “16b” and “200b” from which
-“excl” is excluded. As the shares in “rest” are as high as those of
-“excl”, USTR will receive massive product exclusion requests, as they imposed 15 percent tariffs on September 1, and will impose on December 15, 2019.
+“excl” is excluded. As the shares in "300b\_c" (will be effective on December 15, 2019) are much much higer than those of "excl", USTR will receive massive product exclusion requests.
 
 ![](README_files/figure-gfm/boxplot-1.png)<!-- -->
 
