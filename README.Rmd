@@ -185,7 +185,7 @@ USTR announces exclusions periodically. Exclusions are specified by HTS 10 digit
 ```{r exclusions, echo=FALSE, results="hide", cache=FALSE}
 hts10 <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{4})"
 
-exclusion_list <- vector("list", length = 8)
+exclusion_list <- vector("list", length = 13)
 
 # 34b: granted December 21, 2018
 exclusion_list[[1]] <- extract_hts(
@@ -211,32 +211,71 @@ exclusion_list[[3]] <- extract_hts(
 # granted May 14, 2019
 exclusion_list[[4]] <- extract_hts(
   hts = hts10,
-  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_21389.pdf"
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_21389.pdf",
+  page_range = 2:3
   )
 
 # granted June 4, 2019
 exclusion_list[[5]] <- extract_hts(
   hts = hts10,
-  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_25895.pdf"
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_25895.pdf",
+  page_range = 2:4
   )
 
 # granted July 9, 2019
 exclusion_list[[6]] <- extract_hts(
   hts = hts10,
-  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Product_Exclusions.pdf"
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Product_Exclusions.pdf",
+  page_range = 3:5
+  )
+
+# granted September 20, 2019
+exclusion_list[[7]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2434_Billion_Exclusions_Granted_September.pdf",
+  page_range = 3:26
+  )
+
+# granted October 2, 2019
+exclusion_list[[8]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2434_Billion_Exclusions_Granted_October_2019.pdf",
+  page_range = 3:12
   )
 
 # 16b: granted July 31, 2019
-exclusion_list[[7]] <- extract_hts(
+exclusion_list[[9]] <- extract_hts(
   hts = hts10,
-  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/16_Billion_Exclusions_Granted.pdf"
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/16_Billion_Exclusions_Granted.pdf",
+  page_range = 2:4
+  )
+
+# 16b: granted September 20, 2019
+exclusion_list[[10]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2416_Billion_Exclusions_Granted_September.pdf",
+  page_range = 3:11
+  )
+
+# 16b: granted October 2, 2019
+exclusion_list[[11]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2416_Billion_Exclusions_Granted_October_2019.pdf",
+  page_range = 3:13
   )
 
 # 200b: granted August 2, 2019
-exclusion_list[[8]] <- extract_hts(
+exclusion_list[[12]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/200_Billion_Exclusions_Granted.pdf",
   page_range = 6:7
+  )
+
+# 200b: granted September 20, 2019
+exclusion_list[[13]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_September.pdf",
+  page_range = 3:6
   )
 
 
@@ -270,7 +309,11 @@ I struggle with which table I should use, and reach [this page](https://www.cens
 I get to know the country code of China is 5700 from [this page](https://www.census.gov/foreign-trade/schedules/c/countryname.html). OK, let us get data. Each download takes approximately half a minute.
 
 ```{r china_2018, echo=FALSE, warning=FALSE, cache=FALSE}
-df2018 <- import_from_country(country = 5700, year = 2018)
+df_china <- import_from_country(country = 5700,
+                              year = "from 2017 to 2019")
+
+df2018 <- df_china %>% 
+  filter(time >= "2018-01-01", time <= "2018-12-01")
 
 real34b <- df2018 %>% 
   semi_join(df_list_34b, by = "hs8") %>% 
@@ -333,15 +376,6 @@ What can I say from the chart below?
 1. Chinese shares in "excl" have declined. We will see recovery after exclusion.
 
 ```{r get_data, echo=FALSE, cache=FALSE, fig.width=6, fig.height=6}
-# 2017
-df2017 <- import_from_country(5700, 2017)
-
-# 2019
-df2019 <- import_from_country(5700, 2019)
-
-# Combine data
-df_china <- bind_rows(df2017, df2018, df2019)
-
 # Total import
 # get data, takes time
 df_total <- import_total("from 2017 to 2019")
