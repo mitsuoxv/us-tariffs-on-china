@@ -71,11 +71,17 @@ every_nth = function(n) {
 
 ## Extract HTS 8 digit codes for "34b", "16b", "200b" and "300b_a", and 10 digit codes for "excl"
 
-I load tariff lists I have saved in [the original analysis](README.md).
+I load tariff lists I have saved in [the separate page](Extract-hts-from-USTR.md).
 
 ```{r load_tariff_list, echo=FALSE, results="hide", cache=FALSE}
 # load data
 load("data/tariff_list.rdata")
+
+df_list_excl <- tibble(
+  trf_excl = TRUE,
+  hs10 = exclusion_list %>% unlist() %>% unique()
+  ) %>% 
+  arrange(hs10)
 
 ```
 
@@ -216,6 +222,6 @@ df_sum2
 
 ```
 
-Chinese are paying `r round(100 - as.numeric(df_sum2[1, 3]), 1)` out of 25 percent in "34b", `r round(100 - as.numeric(df_sum2[3, 3]), 1)` out of 25 in "200b", and nothing in "16b" in the latest month. We will see what happens in "300b_a" 10 percent tariffs from September, 2019.
+Chinese are paying `r round(100 - as.numeric(df_sum2[1, 3]), 1)` out of 25 percent in "34b", `r round(100 - as.numeric(df_sum2[2, 3]), 1)` out of 25 in "16b", `r round(100 - as.numeric(df_sum2[3, 3]), 1)` out of 25 in "200b", and `r round(100 - as.numeric(df_sum2[4, 3]), 1)` out of 10 in "300b_a" in the latest month.
 
 EOL

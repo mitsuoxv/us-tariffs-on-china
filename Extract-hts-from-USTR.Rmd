@@ -1,0 +1,239 @@
+---
+title: "Extract HTS codes from USTR site"
+author: "Mitsuo Shiota"
+date: "2019-11-08"
+output: 
+  github_document:
+    toc: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Updated: `r Sys.Date()`
+
+## Summary
+
+I extract 8 digit HTS (Harmonized Tariff Scedule of the United States) codes from the USTR tariff lists (pdf format). I also extract 10 digit HTS codes from granted product exclusion lists. These lists can be found on [this USTR page](https://ustr.gov/issue-areas/enforcement/section-301-investigations/tariff-actions).
+
+
+## Libraries and functions
+
+As usual, I attach tidyverse package.
+
+```{r libraries, include=FALSE}
+library(tidyverse)
+
+```
+
+I make a function to extract hts codes from specified pages in url and page_range. I utilize pdftools package to read pdf files, and httr package to get data from URL.
+
+```{r extract_hts function, echo=TRUE}
+extract_hts <- function(hts, url, page_range = NULL) {
+  tf <- tempfile(fileext = ".pdf")
+  
+  httr::GET(url, httr::write_disk(tf))
+  
+  text <- pdftools::pdf_text(tf)
+  
+  if (!is.null(page_range)) {
+    text <- text[page_range]
+  }
+  
+  text %>% 
+    str_extract_all(hts) %>% 
+    unlist() %>% 
+    str_replace_all("\\.", "")
+}
+
+```
+
+## Extract HTS 8 digit codes from USTR lists
+
+pdftools::pdf_text lets me scan a pdf file by page. stringr package in tidyverse helps me to extract 8 digits.
+
+```{r extract_digits, echo=TRUE, results="hide", cache=FALSE}
+hts8 <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{2})"
+
+# First tranche 34 billion dollars, 25 percent, effective on July 6, 2018
+# https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/34-billion-trade-action
+
+df_list_34b <- tibble(
+  trf_34b = TRUE,
+  hs8 = extract_hts(
+    hts = hts8,
+    url = "https://ustr.gov/sites/default/files/2018-13248.pdf",
+    page_range = 5:9
+    )
+  )
+
+# Second tranche 16 billion dollars, 25 percent, August 23, 2018
+# https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/16-billion-trade-action
+
+df_list_16b <- tibble(
+  trf_16b = TRUE,
+  hs8 = extract_hts(
+    hts = hts8,
+    url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/2018-17709.pdf",
+    page_range = 4:5
+    )
+  )
+
+# 200 billion dollars, 10 percent, September 24, 2018
+# https://ustr.gov/issue-areas/enforcement/section-301-investigations/section-301-china/200-billion-trade-action
+
+df_list_200b <- tibble(
+  trf_200b = TRUE,
+  hs8 = extract_hts(
+    hts = hts8,
+    url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/Tariff%20List%20%2883%20FR%2047974%2C%20as%20amended%20and%20modified%20by%2083%20FR%2049153%29.pdf",
+    page_range = 1:194
+    )
+  )
+
+# 15 percent, September 1, 2019
+df_list_300b_a <- tibble(
+  trf_300b_a = TRUE,
+  hs8 = extract_hts(
+    hts = hts8,
+    url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Modification_%28List_4A_and_List_4B%29.pdf",
+    page_range = 4:25
+    )
+  )
+
+# 15 percent, December 15, 2019
+df_list_300b_c <- tibble(
+  trf_300b_c = TRUE,
+  hs8 = extract_hts(
+    hts = hts8,
+    url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Modification_%28List_4A_and_List_4B%29.pdf",
+    page_range = 142:145
+    )
+  )
+
+```
+
+USTR says the numbers of HTS 8 digit items are 818, 279 and 5745 for the first tranche 34b, the second tranche 16b and the last 200b, respectively. My caluculation says the numbers are `r nrow(df_list_34b)`, `r nrow(df_list_16b)` and `r nrow(df_list_200b)`. Although there are small differences, I think I can ignore.
+
+## Extract HTS 10 digit codes from exclusion lists
+
+USTR announces exclusions periodically. Exclusions are specified by HTS 10 digit codes.
+
+```{r exclusions, echo=TRUE, results="hide", cache=FALSE}
+hts10 <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{4})"
+
+exclusion_list <- vector("list", length = 14)
+
+# 34b: granted December 21, 2018
+exclusion_list[[1]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/2018-28277.pdf",
+  page_range = 3:5
+  )
+
+# granted March 25, 2019
+exclusion_list[[2]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_11152.pdf",
+  page_range = 3:6
+  )
+
+# granted April 18, 2019
+exclusion_list[[3]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_16310.pdf",
+  page_range = 3:5
+  )
+
+# granted May 14, 2019
+exclusion_list[[4]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_21389.pdf",
+  page_range = 2:3
+  )
+
+# granted June 4, 2019
+exclusion_list[[5]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/84_FR_25895.pdf",
+  page_range = 2:4
+  )
+
+# granted July 9, 2019
+exclusion_list[[6]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Product_Exclusions.pdf",
+  page_range = 3:5
+  )
+
+# granted September 20, 2019
+exclusion_list[[7]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2434_Billion_Exclusions_Granted_September.pdf",
+  page_range = 3:26
+  )
+
+# granted October 2, 2019
+exclusion_list[[8]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2434_Billion_Exclusions_Granted_October_2019.pdf",
+  page_range = 3:12
+  )
+
+# 16b: granted July 31, 2019
+exclusion_list[[9]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/16_Billion_Exclusions_Granted.pdf",
+  page_range = 2:4
+  )
+
+# 16b: granted September 20, 2019
+exclusion_list[[10]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2416_Billion_Exclusions_Granted_September.pdf",
+  page_range = 3:11
+  )
+
+# 16b: granted October 2, 2019
+exclusion_list[[11]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2416_Billion_Exclusions_Granted_October_2019.pdf",
+  page_range = 3:13
+  )
+
+# 200b: granted August 2, 2019
+exclusion_list[[12]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/200_Billion_Exclusions_Granted.pdf",
+  page_range = 6:7
+  )
+
+# 200b: granted September 20, 2019
+exclusion_list[[13]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_September.pdf",
+  page_range = 3:6
+  )
+
+# 200b: granted October 28, 2019 
+exclusion_list[[14]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_October.pdf",
+  page_range = 3:5
+  )
+
+
+```
+
+I save tariff lists of "34b", "16b", "200b", "300b_a" and "300b_c", and a granted product exclusion list in an rdata file.
+
+```{r save}
+save(df_list_34b, df_list_16b, df_list_200b,
+     df_list_300b_a, df_list_300b_c, exclusion_list, 
+     file = "data/tariff_list.rdata")
+
+```
+
+EOL
