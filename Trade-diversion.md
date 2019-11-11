@@ -7,12 +7,12 @@ Mitsuo Shiota
   - [Libraries and functions](#libraries-and-functions)
   - [Download data](#download-data)
   - [Choose HS codes of which imports from China declined significantly
-    in 2019 1Q and
-    2Q](#choose-hs-codes-of-which-imports-from-china-declined-significantly-in-2019-1q-and-2q)
+    in 2019
+    3Q](#choose-hs-codes-of-which-imports-from-china-declined-significantly-in-2019-3q)
   - [Draw charts of US import changes from a year earlier from each
     country](#draw-charts-of-us-import-changes-from-a-year-earlier-from-each-country)
 
-Updated: 2019-08-06
+Updated: 2019-11-11
 
 ## Summary
 
@@ -32,17 +32,16 @@ I download US monthly imports from China, Vietnam, Korea, Japan and
 Mexico by HS 4 digit codes since 2017, convert to quartely, and fill 0s
 in gaps.
 
-After I fill zeros in gaps, the number of rows is 60600. As it matches 5
+After I fill zeros in gaps, the number of rows is 66660. As it matches 5
 (number of countries) times 1212 (number of unique hs goods), I can
 confirm there are no gaps, and safely use `tqr` package which utilizes
 lags.
 
-## Choose HS codes of which imports from China declined significantly in 2019 1Q and 2Q
+## Choose HS codes of which imports from China declined significantly in 2019 3Q
 
-I first choose HS codes of which imports from China declined more than
-20 percent in average in 2019 1Q and 2Q. Next I choose HS codes of which
-imports from China are still more than 500 million dollars in 2019 2Q.
-As a result, I choose 30 goods.
+I first choose HS codes of which imports from China declined by more
+than 200 million dollars in 2019 3Q. Next I choose HS codes of which
+imports from China are still more than 500 million dollars in 2019 3Q.
 
 ## Draw charts of US import changes from a year earlier from each country
 
@@ -55,12 +54,13 @@ yet imposed tariffs by the US. This replacement is caused by Samsung’s
 strategy to expand smart phone production capacity in Vietnam, and by
 ZTE and Huawei losing shares in the US.
 
-Vietnam is also advancing in 0402 (concentrated milk and cream) and 8542
-(IC).
+Vietnam is also advancing in 8542 (IC), 9401 (Seats) and 9403 (Other
+furniture).
 
-Also increasing are Mexico in 0804, 0806, 0810 (fruits) and in 8421
-(centrifuges), Korea in 8418 (refrigerators), and Japan in 8486
-(semiconductor manufacturing equipment).
+Japan, South Korea and Mexico all supplant China in 8523 (Recording
+medium).
+
+Mexico replaces China in 8708 (Auto parts).
 
 ![](Trade-diversion_files/figure-gfm/draw_charts-1.png)<!-- -->
 
