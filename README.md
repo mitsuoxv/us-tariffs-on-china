@@ -14,7 +14,7 @@ Mitsuo Shiota
   - [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2019-11-08
+Updated: 2019-12-06
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
@@ -92,10 +92,10 @@ are 110.4 and 160.6 billion dollars respectively.
 
 ## How much imports are excluded so far?
 
-So far USTR announced exclusion lists 14 times. They specify products
+So far USTR announced exclusion lists 16 times. They specify products
 simply by HTS 10 digit code, or by product description and HTS 10 digit
 code it belong to. When I caluculate simply by HTS 10 digit code,
-exclusions amount to 37.2 billion dollars annually.
+exclusions amount to 51.3 billion dollars annually.
 
 ## Look at the Chinese share movements
 
