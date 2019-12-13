@@ -62,11 +62,6 @@ import_from_country <- function(country, year) {
     sum2hs8()
 }
 
-# label every nth
-every_nth = function(n) {
-  return(function(x) {x[c(TRUE, rep(FALSE, n - 1))]})
-}
-
 ```
 
 ## Extract HTS 8 digit codes for "34b", "16b", "200b" and "300b_a", and 10 digit codes for "excl"
@@ -174,16 +169,9 @@ df_m %>%
 As I index the first half of 2018 as 100, the price range in this period is naturally narrow. “34b”, “16b”, “200b” and "300b_a" imposed tariffs got effective on July 6, 2018, August 23, 2018, September 24, 2018, and September 1, 2019, respectively. If Chinese pay tariffs, prices fall after the effective date.
 
 ```{r boxplot, echo=FALSE, fig.width=8, fig.height=6}
-x <- df_m$time %>% as.character() %>% str_sub(1, 7)
-labels <- unique(x)
-
 df_m %>% 
-  ggplot(aes(x, index)) +
-  geom_boxplot() +
-  scale_x_discrete(
-    breaks = every_nth(n = 6),
-    limits = labels
-    ) +
+  ggplot(aes(time, index)) +
+  geom_boxplot(aes(group = time)) +
   facet_wrap(~ category) +
   coord_cartesian(ylim = c(0, 200)) +
   labs(
