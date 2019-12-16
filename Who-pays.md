@@ -99,7 +99,7 @@ In the latest month, median price indices by category are as below.
     ## 6 rest     2019-10-01  95.9
 
 Chinese are paying 7.8 out of 25 percent in “34b”, 1.1 out of 25 in
-“16b”, 4.9 out of 25 in “200b”, and 2.1 out of 10 in “300b\_a” in
+“16b”, 4.9 out of 25 in “200b”, and 2.1 out of 15 in “300b\_a” in
 the latest month.
 
 EOL

@@ -210,6 +210,6 @@ df_sum2
 
 ```
 
-Chinese are paying `r round(100 - as.numeric(df_sum2[1, 3]), 1)` out of 25 percent in "34b", `r round(100 - as.numeric(df_sum2[2, 3]), 1)` out of 25 in "16b", `r round(100 - as.numeric(df_sum2[3, 3]), 1)` out of 25 in "200b", and `r round(100 - as.numeric(df_sum2[4, 3]), 1)` out of 10 in "300b_a" in the latest month.
+Chinese are paying `r round(100 - as.numeric(df_sum2[1, 3]), 1)` out of 25 percent in "34b", `r round(100 - as.numeric(df_sum2[2, 3]), 1)` out of 25 in "16b", `r round(100 - as.numeric(df_sum2[3, 3]), 1)` out of 25 in "200b", and `r round(100 - as.numeric(df_sum2[4, 3]), 1)` out of 15 in "300b_a" in the latest month.
 
 EOL
