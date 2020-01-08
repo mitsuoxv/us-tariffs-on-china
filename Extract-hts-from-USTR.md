@@ -10,7 +10,7 @@ Mitsuo Shiota
   - [Extract HTS 10 digit codes from exclusion
     lists](#extract-hts-10-digit-codes-from-exclusion-lists)
 
-Updated: 2019-12-06
+Updated: 2020-01-06
 
 ## Summary
 
@@ -101,7 +101,7 @@ df_list_300b_a <- tibble(
     )
   )
 
-# 15 percent, December 15, 2019
+# 15 percent, December 15, 2019, postponed
 df_list_300b_c <- tibble(
   trf_300b_c = TRUE,
   hs8 = extract_hts(
@@ -125,7 +125,7 @@ USTR announces exclusions periodically. Exclusions are specified by HTS
 ``` r
 hts10 <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{4})"
 
-exclusion_list <- vector("list", length = 16)
+exclusion_list <- vector("list", length = 18)
 
 # 34b: granted December 21, 2018
 exclusion_list[[1]] <- extract_hts(
@@ -237,6 +237,20 @@ exclusion_list[[16]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted-November.pdf",
   page_range = 3:4
+  )
+
+# 200b: granted December 17, 2019
+exclusion_list[[17]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_December.pdf",
+  page_range = 3:4
+  )
+
+# 200b: granted December 31, 2019
+exclusion_list[[18]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_December.pdf",
+  page_range = 6:11
   )
 ```
 

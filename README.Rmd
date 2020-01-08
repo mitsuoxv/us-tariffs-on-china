@@ -167,7 +167,7 @@ So far USTR announced exclusion lists `r length(exclusion_list)` times. They spe
 
 ## Look at the Chinese share movements
 
-I get imports from China and total imports from January 2017 up to now, and calculate Chinese shares in imports in each category of "34b", "16b", "200b", "300b_a", "300b_c", "excl", and "rest". "34b", "16b", "200b", "300b_a", "300b_c" are imposed tariffs effective on July 6 2018, August 23 2018, September 24 2018, September 1 2019 and (scheduled) December 15 2019, respectively. "excl" is exclusion granted so far. "rest" is the rest.
+I get imports from China and total imports from January 2017 up to now, and calculate Chinese shares in imports in each category of "34b", "16b", "200b", "300b_a", "300b_c", "excl", and "rest". "34b", "16b", "200b", "300b_a", "300b_c" are imposed tariffs effective on July 6 2018, August 23 2018, September 24 2018, September 1 2019 and (postponed) December 15 2019, respectively. "excl" is exclusion granted so far. "rest" is the rest.
 
 What can I say from the chart below?
 
