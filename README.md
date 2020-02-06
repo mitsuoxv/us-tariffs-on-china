@@ -14,7 +14,7 @@ Mitsuo Shiota
   - [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2020-01-08
+Updated: 2020-02-06
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
@@ -92,10 +92,10 @@ are 110.4 and 160.6 billion dollars respectively.
 
 ## How much imports are excluded so far?
 
-So far USTR announced exclusion lists 18 times. They specify products
+So far USTR announced exclusion lists 20 times. They specify products
 simply by HTS 10 digit code, or by product description and HTS 10 digit
 code it belong to. When I caluculate simply by HTS 10 digit code,
-exclusions amount to 60.5 billion dollars annually.
+exclusions amount to 60.8 billion dollars annually.
 
 ## Look at the Chinese share movements
 
@@ -143,9 +143,9 @@ What can I say from the chart below?
 To confirm the point \#1 above, I draw the distribution of 2018 Chinese
 shares in HTS 10 digit goods by each tariff schedule category. Chinese
 shares in “excl” are much higher than “34b”, “16b” and “200b” from which
-“excl” is excluded. As the shares in “300b\_c” (will be effective on
-December 15, 2019) are much much higer than those of “excl”, USTR will
-receive massive product exclusion requests.
+“excl” is excluded. As the shares in “300b\_c” (postponed from the
+scheduled December 15, 2019) are much much higer than those of “excl”,
+USTR will receive massive product exclusion requests.
 
 ![](README_files/figure-gfm/boxplot-1.png)<!-- -->
 

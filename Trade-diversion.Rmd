@@ -115,31 +115,31 @@ import_q <- import_q %>%
 After I fill zeros in gaps, the number of rows is `r nrow(import_q)`. As it matches 5 (number of countries) times `r import_q$hs %>% unique() %>% length()` (number of unique hs goods), I can confirm there are no gaps, and safely use `tqr` package which utilizes lags.
 
 
-## Choose HS codes of which imports from China declined significantly in 2019 3Q
+## Choose HS codes of which imports from China declined significantly in 2019 4Q
 
 ```{r china_loss, echo=FALSE}
 # tsibble
 import_q <- import_q %>% 
   as_tsibble(index = quarter, key = c(country, hs))
 
-# goods of whch imports from china declines in 2019 3Q by more than 200 million
+# goods of whch imports from china declines in 2019 4Q by more than 200 million
 # dollars
 hs_china_loss <- import_q %>% 
   filter(country == "CHINA") %>% 
   tq_diff(n = 4) %>% 
   as_tsibble() %>% 
-  filter(quarter == "2019-07-01", value < -200) %>% 
+  filter(quarter == "2019-10-01", value < -200) %>% 
   `[[`("hs")
 
-# and imports from china in 2019 3Q still more than 500 million dollars
+# and imports from china in 2019 4Q still more than 500 million dollars
 hs_china_loss2 <- import_q %>% 
   filter(hs %in% hs_china_loss) %>% 
-  filter(quarter == "2019-07-01", value > 500) %>% 
+  filter(quarter == "2019-10-01", value > 500) %>% 
   `[[`("hs")
 
 ```
 
-I first choose HS codes of which imports from China declined by more than 200 million dollars in 2019 3Q. Next I choose HS codes of which imports from China are still more than 500 million dollars in 2019 3Q.
+I first choose HS codes of which imports from China declined by more than 200 million dollars in 2019 4Q. Next I choose HS codes of which imports from China are still more than 500 million dollars in 2019 4Q.
 
 ## Draw charts of US import changes from a year earlier from each country
 
@@ -147,7 +147,7 @@ For the goods descriptions of HS codes, refer to http://www.kanzei.or.jp/statist
 
 Most notable case is that Vietnam replaces China as a main export base of 8517 (telephone sets), probably smart phones. Smart phones are not yet imposed tariffs by the US. This replacement is caused by Samsung's strategy to expand smart phone production capacity in Vietnam, and by ZTE and Huawei losing shares in the US. 
 
-Vietnam is also advancing in 8542 (IC), 9401 (Seats) and 9403 (Other furniture).
+Vietnam is also advancing in 8544 (Cables), 9401 (Seats) and 9403 (Other furniture).
 
 Japan, South Korea and Mexico all supplant China in 8523 (Recording medium).
 

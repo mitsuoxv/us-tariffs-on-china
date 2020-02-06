@@ -247,7 +247,7 @@ ggsave(filename = "output/chinese-shares.pdf",
 
 ```
 
-To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b", "16b" and "200b" from which "excl" is excluded. As the shares in "300b_c" (will be effective on December 15, 2019) are much much higer than those of "excl", USTR will receive massive product exclusion requests.
+To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b", "16b" and "200b" from which "excl" is excluded. As the shares in "300b_c" (postponed from the scheduled December 15, 2019) are much much higer than those of "excl", USTR will receive massive product exclusion requests.
 
 ```{r boxplot, echo=FALSE, warning=FALSE, fig.width=6, fig.height=6}
 df_total$category <- factor(df_total$category, 
