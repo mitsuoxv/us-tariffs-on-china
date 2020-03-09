@@ -10,7 +10,7 @@ Mitsuo Shiota
   - [Extract HTS 10 digit codes from exclusion
     lists](#extract-hts-10-digit-codes-from-exclusion-lists)
 
-Updated: 2020-02-06
+Updated: 2020-03-09
 
 ## Summary
 
@@ -125,7 +125,7 @@ USTR announces exclusions periodically. Exclusions are specified by HTS
 ``` r
 hts10 <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{4})"
 
-exclusion_list <- vector("list", length = 20)
+exclusion_list <- vector("list", length = 24)
 
 # 34b: granted December 21, 2018
 exclusion_list[[1]] <- extract_hts(
@@ -190,81 +190,109 @@ exclusion_list[[9]] <- extract_hts(
   page_range = 2:2
   )
 
-# 16b: granted July 31, 2019
+# granted February 11, 2020
 exclusion_list[[10]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2434_Billion_Notice_of_Product_Exclusions_and_Amendments_February_2020.pdf",
+  page_range = 2:4
+  )
+
+# 16b: granted July 31, 2019
+exclusion_list[[11]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/16_Billion_Exclusions_Granted.pdf",
   page_range = 2:4
   )
 
 # 16b: granted September 20, 2019
-exclusion_list[[11]] <- extract_hts(
+exclusion_list[[12]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2416_Billion_Exclusions_Granted_September.pdf",
   page_range = 3:11
   )
 
 # 16b: granted October 2, 2019
-exclusion_list[[12]] <- extract_hts(
+exclusion_list[[13]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2416_Billion_Exclusions_Granted_October_2019.pdf",
   page_range = 3:13
   )
 
+# 16b: granted February 20, 2020
+exclusion_list[[14]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2416_Billion_Exclusions_Granted_February.pdf",
+  page_range = 5:5
+  )
+
 # 200b: granted August 2, 2019
-exclusion_list[[13]] <- extract_hts(
+exclusion_list[[15]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/200_Billion_Exclusions_Granted.pdf",
   page_range = 6:7
   )
 
 # 200b: granted September 20, 2019
-exclusion_list[[14]] <- extract_hts(
+exclusion_list[[16]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_September.pdf",
   page_range = 3:6
   )
 
 # 200b: granted October 28, 2019 
-exclusion_list[[15]] <- extract_hts(
+exclusion_list[[17]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_October.pdf",
   page_range = 3:5
   )
 
 # 200b: granted November 7, 2019 
-exclusion_list[[16]] <- extract_hts(
+exclusion_list[[18]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_November.pdf",
   page_range = 2:3
   )
 
 # 200b: granted November 29, 2019 
-exclusion_list[[17]] <- extract_hts(
+exclusion_list[[19]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted-November.pdf",
   page_range = 3:4
   )
 
 # 200b: granted December 17, 2019
-exclusion_list[[18]] <- extract_hts(
+exclusion_list[[20]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_December.pdf",
   page_range = 3:4
   )
 
 # 200b: granted December 31, 2019
-exclusion_list[[19]] <- extract_hts(
+exclusion_list[[21]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_December.pdf",
   page_range = 6:11
   )
 
 # 200b: granted February 5, 2020
-exclusion_list[[20]] <- extract_hts(
+exclusion_list[[22]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_January_31.pdf",
   page_range = 3:12
+  )
+
+# 200b: granted February 20, 2020
+exclusion_list[[23]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_February.pdf",
+  page_range = 2:4
+  )
+
+# 300b_a: granted February 20, 2020
+exclusion_list[[24]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24300_Billion_Exclusions_Granted_March.pdf",
+  page_range = 6:6
   )
 ```
 

@@ -88,7 +88,7 @@ keyring::key_set("census")
 ```
 
 ```{r get_data, echo=FALSE, warning=FALSE, cache=FALSE}
-df_m <- import_from_country(5700, "from 2018 to 2019")
+df_m <- import_from_country(5700, "from 2018 to 2020")
 
 ```
 

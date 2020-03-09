@@ -118,7 +118,7 @@ I get to know the country code of China is 5700 from [this page](https://www.cen
 
 ```{r china_2018, echo=FALSE, warning=FALSE, cache=FALSE}
 df_china <- import_from_country(country = 5700,
-                              year = "from 2017 to 2019")
+                              year = "from 2017 to 2020")
 
 df2018 <- df_china %>% 
   filter(time >= "2018-01-01", time <= "2018-12-01")
@@ -186,7 +186,7 @@ What can I say from the chart below?
 ```{r get_data, echo=FALSE, cache=FALSE, fig.width=6, fig.height=6}
 # Total import
 # get data, takes time
-df_total <- import_total("from 2017 to 2019")
+df_total <- import_total("from 2017 to 2020")
 
 # value.x as total, value.y as china
 df_total <- df_total %>% 
