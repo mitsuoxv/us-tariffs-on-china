@@ -14,7 +14,7 @@ Mitsuo Shiota
   - [Look at the price changes from the first half of
     2018](#look-at-the-price-changes-from-the-first-half-of-2018)
 
-Updated: 2020-03-09
+Updated: 2020-04-08
 
 ## Motivation and purpose
 
@@ -44,7 +44,7 @@ page](Extract-hts-from-USTR.md).
 
 ## Get monthly import data
 
-The number of HTS 10 digit code items are 15301.
+The number of HTS 10 digit code items are 15351.
 
 ## Index unit price of the first half of 2018 as 100
 
@@ -61,10 +61,10 @@ The number of HTS 10 digit code items by category are as below.
     ## # Groups:   category [6]
     ##   category     n
     ##   <fct>    <int>
-    ## 1 34b       1193
-    ## 2 16b        336
-    ## 3 200b      6180
-    ## 4 300b_a    3841
+    ## 1 34b       1198
+    ## 2 16b        337
+    ## 3 200b      6181
+    ## 4 300b_a    3848
     ## 5 excl       394
     ## 6 rest      1479
 
@@ -91,15 +91,15 @@ In the latest month, median price indices by category are as below.
     ## # Groups:   category [6]
     ##   category time       index
     ##   <fct>    <date>     <dbl>
-    ## 1 34b      2020-01-01  69.3
-    ## 2 16b      2020-01-01  95.8
-    ## 3 200b     2020-01-01  91.9
-    ## 4 300b_a   2020-01-01  93.5
-    ## 5 excl     2020-01-01  84.1
-    ## 6 rest     2020-01-01  90.8
+    ## 1 34b      2020-02-01  75.4
+    ## 2 16b      2020-02-01 102. 
+    ## 3 200b     2020-02-01  90.4
+    ## 4 300b_a   2020-02-01  92.7
+    ## 5 excl     2020-02-01  80.4
+    ## 6 rest     2020-02-01  90.4
 
-Chinese are paying 30.7 out of 25 percent in “34b”, 4.2 out of 25 in
-“16b”, 8.1 out of 25 in “200b”, and 6.5 out of 15 in “300b\_a” in the
-latest month.
+Chinese are paying 24.6 out of 25 percent in “34b”, -2.3 out of 25 in
+“16b”, 9.6 out of 25 in “200b”, and 7.3 out of 15 in “300b\_a” in the latest 
+month. Sould I subtract 9.6 percent decline of "rest"?
 
 EOL

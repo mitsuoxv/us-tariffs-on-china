@@ -183,6 +183,9 @@ What can I say from the chart below?
 
 1. Chinese shares in "excl" have declined. We will see recovery after exclusion.
 
+1. China exports declined in February 2020, due to Covid-19 turmoil.
+
+
 ```{r get_data, echo=FALSE, cache=FALSE, fig.width=6, fig.height=6}
 # Total import
 # get data, takes time

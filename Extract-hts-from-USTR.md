@@ -10,7 +10,7 @@ Mitsuo Shiota
   - [Extract HTS 10 digit codes from exclusion
     lists](#extract-hts-10-digit-codes-from-exclusion-lists)
 
-Updated: 2020-03-09
+Updated: 2020-04-08
 
 ## Summary
 
@@ -125,7 +125,7 @@ USTR announces exclusions periodically. Exclusions are specified by HTS
 ``` r
 hts10 <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{4})"
 
-exclusion_list <- vector("list", length = 24)
+exclusion_list <- vector("list", length = 28)
 
 # 34b: granted December 21, 2018
 exclusion_list[[1]] <- extract_hts(
@@ -218,7 +218,7 @@ exclusion_list[[13]] <- extract_hts(
   page_range = 3:13
   )
 
-# 16b: granted February 20, 2020
+# 16b: granted February 25, 2020
 exclusion_list[[14]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%2416_Billion_Exclusions_Granted_February.pdf",
@@ -288,11 +288,39 @@ exclusion_list[[23]] <- extract_hts(
   page_range = 2:4
   )
 
-# 300b_a: granted February 20, 2020
+# 200b: granted March 16, 2020
 exclusion_list[[24]] <- extract_hts(
   hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_March.pdf",
+  page_range = 3:4
+  )
+
+# 200b: granted March 26, 2020
+exclusion_list[[25]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24200_Billion_Exclusions_Granted_March_20_2020.pdf",
+  page_range = 3:18
+  )
+
+# 300b_a: granted March 10, 2020
+exclusion_list[[26]] <- extract_hts(
+  hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24300_Billion_Exclusions_Granted_March.pdf",
-  page_range = 6:6
+  page_range = 3:3
+  )
+
+# 300b_a: granted March 17, 2020
+exclusion_list[[27]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24300_Billion_Exclusions_Granted_March_2020.pdf",
+  page_range = 4:5
+  )
+
+# 300b_a: granted March 31, 2020
+exclusion_list[[28]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24300_Billion_Exclusions_Granted_March_25_2020.pdf",
+  page_range = 3:3
   )
 ```
 
