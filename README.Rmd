@@ -152,7 +152,7 @@ real300b_c <- df2018 %>%
 
 Using the tariff lists of 8 digit HTS codes I extracted before, I check if 2018 imports are really worth as much as 34, 16 and 200 billion dollars as USTR claims. According to my calculation, 2018 imports are `r round(real34b/1000000000, 1)`, `r round(real16b/1000000000, 1)` and `r round(real200b/1000000000, 1)` billion dollars. Ratios to the USTR claims are `r round(real34b/1000000000/34, 2)`, `r round(real16b/1000000000/16, 2)` and `r round(real200b/1000000000/200, 2)`.  Little bit smaller, but basically confirm the USTR claims.
 
-2018 imports in List 4 Annex A ("300b_a", effective on September 1, 2019) and Annex C ("300b_c", will be effective on December 15, 2019) are `r round(real300b_a/1000000000, 1)` and `r round(real300b_c/1000000000, 1)` billion dollars respectively.
+2018 imports in List 4 Annex A ("300b_a", effective on September 1, 2019) and Annex C ("300b_c", scheduled to be effective on December 15, 2019, but postponed) are `r round(real300b_a/1000000000, 1)` and `r round(real300b_c/1000000000, 1)` billion dollars respectively.
 
 ## How much imports are excluded so far?
 

@@ -14,7 +14,7 @@ Mitsuo Shiota
   - [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2020-04-08
+Updated: 2020-05-07
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
@@ -87,15 +87,15 @@ dollars as USTR claims. According to my calculation, 2018 imports are
 claims.
 
 2018 imports in List 4 Annex A (“300b\_a”, effective on September 1,
-2019) and Annex C (“300b\_c”, will be effective on December 15, 2019)
-are 110.4 and 160.6 billion dollars respectively.
+2019) and Annex C (“300b\_c”, scheduled to be effective on December 15, 2019,
+but postponed) are 110.4 and 160.6 billion dollars respectively.
 
 ## How much imports are excluded so far?
 
-So far USTR announced exclusion lists 28 times. They specify products
+So far USTR announced exclusion lists 30 times. They specify products
 simply by HTS 10 digit code, or by product description and HTS 10 digit
 code it belong to. When I caluculate simply by HTS 10 digit code,
-exclusions amount to 76 billion dollars annually.
+exclusions amount to 85 billion dollars annually.
 
 ## Look at the Chinese share movements
 

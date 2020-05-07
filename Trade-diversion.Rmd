@@ -16,7 +16,7 @@ Updated: `r Sys.Date()`
 
 ## Summary
 
-US imports from China are decreasing in 2019. If trade diversion is goin on, other countries are replacing China. In this study, I somewhat arbitrarily choose 4 candidate countries like Vietnam, Korea, Japan and Mexico, and check whether the US imports from these countries increase by HS 4 digit codes.
+US imports from China are decreasing in 2019 due to tariffs, and in 2020 due to novel coronavirus. If trade diversion is goin on, other countries are replacing China. In this study, I somewhat arbitrarily choose 4 candidate countries like Vietnam, Korea, Japan and Mexico, and check whether the US imports from these countries increase by HS 4 digit codes.
 
 
 ## Libraries and functions
@@ -86,7 +86,7 @@ keyring::key_set("census")
 # import from Vietnum and China
 # https://www.census.gov/foreign-trade/schedules/c/countryname.html
 import <- map_dfr(c(2010, 5520, 5700, 5800, 5880), import_from_country,
-                   hs_digits = 4, year = "from 2017 to 2019")
+                   hs_digits = 4, year = "from 2017 to 2020")
 
 # to million dollars
 import <- import %>% 
@@ -115,31 +115,31 @@ import_q <- import_q %>%
 After I fill zeros in gaps, the number of rows is `r nrow(import_q)`. As it matches 5 (number of countries) times `r import_q$hs %>% unique() %>% length()` (number of unique hs goods), I can confirm there are no gaps, and safely use `tqr` package which utilizes lags.
 
 
-## Choose HS codes of which imports from China declined significantly in 2019 4Q
+## Choose HS codes of which imports from China declined significantly in 2020 1Q
 
 ```{r china_loss, echo=FALSE}
 # tsibble
 import_q <- import_q %>% 
   as_tsibble(index = quarter, key = c(country, hs))
 
-# goods of whch imports from china declines in 2019 4Q by more than 200 million
+# goods of whch imports from china declines in 2020 1Q by more than 200 million
 # dollars
 hs_china_loss <- import_q %>% 
   filter(country == "CHINA") %>% 
   tq_diff(n = 4) %>% 
   as_tsibble() %>% 
-  filter(quarter == "2019-10-01", value < -200) %>% 
+  filter(quarter == "2020-01-01", value < -200) %>% 
   `[[`("hs")
 
-# and imports from china in 2019 4Q still more than 500 million dollars
+# and imports from china in 2020 1Q still more than 500 million dollars
 hs_china_loss2 <- import_q %>% 
   filter(hs %in% hs_china_loss) %>% 
-  filter(quarter == "2019-10-01", value > 500) %>% 
+  filter(quarter == "2020-01-01", value > 500) %>% 
   `[[`("hs")
 
 ```
 
-I first choose HS codes of which imports from China declined by more than 200 million dollars in 2019 4Q. Next I choose HS codes of which imports from China are still more than 500 million dollars in 2019 4Q.
+I first choose HS codes of which imports from China declined by more than 200 million dollars in 2020 1Q from a year ago. Next I choose HS codes of which imports from China are still more than 500 million dollars in 2020 1Q.
 
 ## Draw charts of US import changes from a year earlier from each country
 
