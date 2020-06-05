@@ -10,7 +10,7 @@ Mitsuo Shiota
   - [Extract HTS 10 digit codes from exclusion
     lists](#extract-hts-10-digit-codes-from-exclusion-lists)
 
-Updated: 2020-05-07
+Updated: 2020-06-06
 
 ## Summary
 
@@ -125,7 +125,7 @@ USTR announces exclusions periodically. Exclusions are specified by HTS
 ``` r
 hts10 <- "([0-9]{4})[.]([0-9]{2})[.]([0-9]{4})"
 
-exclusion_list <- vector("list", length = 30)
+exclusion_list <- vector("list", length = 31)
 
 # 34b: granted December 21, 2018
 exclusion_list[[1]] <- extract_hts(
@@ -316,7 +316,7 @@ exclusion_list[[27]] <- extract_hts(
   page_range = 6:19
   )
 
-# 300b_a: granted March 10, 2020
+# 300b_a: granted March 10, 2020     
 exclusion_list[[28]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24300_Billion_Exclusions_Granted_March.pdf",
@@ -334,6 +334,13 @@ exclusion_list[[29]] <- extract_hts(
 exclusion_list[[30]] <- extract_hts(
   hts = hts10,
   url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24300_Billion_Exclusions_Granted_March_25_2020.pdf",
+  page_range = 3:3
+  )
+
+# 300b_a: granted May 13, 2020 
+exclusion_list[[31]] <- extract_hts(
+  hts = hts10,
+  url = "https://ustr.gov/sites/default/files/enforcement/301Investigations/%24300_Billion_Exclusions_Granted_May.pdf",
   page_range = 3:3
   )
 ```
