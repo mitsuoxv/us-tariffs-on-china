@@ -125,27 +125,27 @@ df2018 <- df_china %>%
 
 real34b <- df2018 %>% 
   semi_join(df_list_34b, by = "hs8") %>% 
-  summarize(sum = sum(value)) %>% 
+  summarize(sum = sum(value), .groups = "drop_last") %>% 
   as.numeric()
 
 real16b <- df2018 %>% 
   semi_join(df_list_16b, by = "hs8") %>% 
-  summarize(sum = sum(value)) %>% 
+  summarize(sum = sum(value), .groups = "drop_last") %>% 
   as.numeric()
 
 real200b <- df2018 %>% 
   semi_join(df_list_200b, by = "hs8") %>% 
-  summarize(sum = sum(value)) %>% 
+  summarize(sum = sum(value), .groups = "drop_last") %>% 
   as.numeric()
 
 real300b_a <- df2018 %>% 
   semi_join(df_list_300b_a, by = "hs8") %>% 
-  summarize(sum = sum(value)) %>% 
+  summarize(sum = sum(value), .groups = "drop_last") %>% 
   as.numeric()
 
 real300b_c <- df2018 %>% 
   semi_join(df_list_300b_c, by = "hs8") %>% 
-  summarize(sum = sum(value)) %>% 
+  summarize(sum = sum(value), .groups = "drop_last") %>% 
   as.numeric()
 
 ```
@@ -159,7 +159,7 @@ Using the tariff lists of 8 digit HTS codes I extracted before, I check if 2018 
 ```{r how_much_excluded, echo=FALSE}
 real_excl <- df2018 %>% 
   semi_join(df_list_excl, by = "hs10") %>% 
-  summarize(sum = sum(value)) %>% 
+  summarize(sum = sum(value), .groups = "drop_last") %>% 
   as.numeric()
 
 ```
@@ -235,6 +235,7 @@ df_total %>%
     total = sum(total),
     china = sum(china),
     share = china / total * 100,
+    .groups = "drop_last"
   ) %>% 
   ggplot(aes(x = time, y = share, color = fct_reorder2(category, time, share))) +
   geom_line(size = 1) +
@@ -263,6 +264,7 @@ df_total %>%
     total = sum(total),
     china = sum(china),
     share = china / total * 100,
+    .groups = "drop_last"
   ) %>% 
   ggplot(aes(x = category, y = share)) +
   geom_boxplot() +

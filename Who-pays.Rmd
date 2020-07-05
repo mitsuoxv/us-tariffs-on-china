@@ -104,7 +104,8 @@ unit_price_base <- df_m %>%
   group_by(hs10) %>% 
   summarize(
     value = sum(value),
-    quantity = sum(quantity)
+    quantity = sum(quantity),
+    .groups = "drop_last"
   ) %>% 
   mutate(unit_price = value / quantity) %>% 
   select(hs10, unit_price)
@@ -186,7 +187,7 @@ In some non-commodity items, products are so different, and it is difficult to i
 ```{r line_chart, echo=FALSE, warning=FALSE, fig.width=6, fig.height=6}
 df_sum <- df_m %>% 
   group_by(category, time) %>% 
-  summarize(index = median(index))
+  summarize(index = median(index), .groups = "drop_last")
 
 df_sum %>% 
   ggplot(aes(time, index,
