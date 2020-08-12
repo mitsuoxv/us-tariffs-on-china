@@ -8,11 +8,11 @@ Mitsuo Shiota
   - [Download data](#download-data)
   - [Choose HS codes of which imports from China declined significantly
     in 2020
-    1Q](#choose-hs-codes-of-which-imports-from-china-declined-significantly-in-2020-1q)
-  - [Draw charts of US import changes from a year earlier from each
-    country](#draw-charts-of-us-import-changes-from-a-year-earlier-from-each-country)
+    2Q](#choose-hs-codes-of-which-imports-from-china-declined-significantly-in-2020-2q)
+  - [Draw charts of US import changes from 2018 Q1 from each
+    country](#draw-charts-of-us-import-changes-from-2018-q1-from-each-country)
 
-Updated: 2020-05-07
+Updated: 2020-08-12
 
 ## Summary
 
@@ -33,19 +33,14 @@ I download US monthly imports from China, Vietnam, Korea, Japan and
 Mexico by HS 4 digit codes since 2017, convert to quartely, and fill 0s
 in gaps.
 
-After I fill zeros in gaps, the number of rows is 78845. As it matches 5
-(number of countries) times 1213 (number of unique hs goods), I can
-confirm there are no gaps, and safely use `tqr` package which utilizes
-lags.
-
-## Choose HS codes of which imports from China declined significantly in 2020 1Q
+## Choose HS codes of which imports from China declined significantly in 2020 2Q
 
 I first choose HS codes of which imports from China declined by more
-than 200 million dollars in 2020 1Q from a year ago. Next I choose HS
+than 200 million dollars in 2020 2Q from a year ago. Next I choose HS
 codes of which imports from China are still more than 500 million
-dollars in 2020 1Q.
+dollars in 2020 2Q.
 
-## Draw charts of US import changes from a year earlier from each country
+## Draw charts of US import changes from 2018 Q1 from each country
 
 For the goods descriptions of HS codes, refer to
 <http://www.kanzei.or.jp/statistical/expstatis/headline/hs2dig/e/85>.
@@ -56,13 +51,11 @@ yet imposed tariffs by the US. This replacement is caused by Samsung’s
 strategy to expand smart phone production capacity in Vietnam, and by
 ZTE and Huawei losing shares in the US.
 
-Vietnam is also advancing in 8544 (Cables), 9401 (Seats) and 9403 (Other
-furniture).
+Vietnam is also advancing in 9401 (Seats) and 9403 (Other furniture).
 
-Japan, South Korea and Mexico all supplant China in 8523 (Recording
-medium).
+South Korea supplants China in 8523 (Recording medium).
 
-Mexico replaces China in 8708 (Auto parts).
+No winners in 8708 (Auto parts).
 
 ![](Trade-diversion_files/figure-gfm/draw_charts-1.png)<!-- -->
 

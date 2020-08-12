@@ -27,7 +27,7 @@ I use self-made package `tqr`.
 # Libraries
 library(tidyverse)
 library(tsibble)
-library(tqr)
+
 
 # Functions
 # get country import data by year and by specified HTS digits (1-10)
@@ -64,7 +64,7 @@ import_from_country <- function(country, hs_digits, year) {
     ) %>% 
     # summarize because cutting codes may have created duplication
     group_by(country, time, hs) %>% 
-    summarize(value = sum(value)) %>% 
+    summarize(value = sum(value), .groups = "drop_last") %>% 
     ungroup() %>% 
     select(country, time, hs, value) %>% 
     arrange(country, hs, time)
@@ -96,7 +96,7 @@ import <- import %>%
 import_q <- import %>% 
   mutate(quarter = yearquarter(time)) %>% 
   group_by(country, hs, quarter) %>% 
-  summarize(value = sum(value)) %>% 
+  summarize(value = sum(value), .groups = "drop_last") %>% 
   ungroup()
 
 # fill 0
@@ -112,64 +112,69 @@ import_q <- import_q %>%
 
 ```
 
-After I fill zeros in gaps, the number of rows is `r nrow(import_q)`. As it matches 5 (number of countries) times `r import_q$hs %>% unique() %>% length()` (number of unique hs goods), I can confirm there are no gaps, and safely use `tqr` package which utilizes lags.
 
-
-## Choose HS codes of which imports from China declined significantly in 2020 1Q
+## Choose HS codes of which imports from China declined significantly in 2020 2Q
 
 ```{r china_loss, echo=FALSE}
 # tsibble
 import_q <- import_q %>% 
   as_tsibble(index = quarter, key = c(country, hs))
 
-# goods of whch imports from china declines in 2020 1Q by more than 200 million
-# dollars
-hs_china_loss <- import_q %>% 
-  filter(country == "CHINA") %>% 
-  tq_diff(n = 4) %>% 
-  as_tsibble() %>% 
-  filter(quarter == "2020-01-01", value < -200) %>% 
-  `[[`("hs")
+# change value to difference with 2018 Q1
+value_2018_Q1 <- import_q %>% 
+  filter(quarter == yearquarter("2018-01-01"))
 
-# and imports from china in 2020 1Q still more than 500 million dollars
+import_q_diff <- import_q %>% 
+  left_join(value_2018_Q1, by = c("country", "hs")) %>% 
+  mutate(value = value.x - value.y) %>% 
+  rename(quarter = quarter.x) %>% 
+  select(quarter, country, hs, value)
+
+# goods of whch imports from china declines in 2020 2Q by more than 200 million
+# dollars from 2018 Q1
+hs_china_loss <- import_q_diff %>% 
+  filter(country == "CHINA") %>% 
+  filter(quarter == yearquarter("2020-04-01"), value < -200) %>% 
+  pull("hs")
+
+# and imports from china in 2020 2Q still more than 500 million dollars
 hs_china_loss2 <- import_q %>% 
   filter(hs %in% hs_china_loss) %>% 
-  filter(quarter == "2020-01-01", value > 500) %>% 
-  `[[`("hs")
+  filter(quarter == yearquarter("2020-04-01"), value > 500) %>% 
+  pull("hs") %>% 
+  unique()
 
 ```
 
-I first choose HS codes of which imports from China declined by more than 200 million dollars in 2020 1Q from a year ago. Next I choose HS codes of which imports from China are still more than 500 million dollars in 2020 1Q.
+I first choose HS codes of which imports from China declined by more than 200 million dollars in 2020 2Q from a year ago. Next I choose HS codes of which imports from China are still more than 500 million dollars in 2020 2Q.
 
-## Draw charts of US import changes from a year earlier from each country
+## Draw charts of US import changes from 2018 Q1 from each country
 
 For the goods descriptions of HS codes, refer to http://www.kanzei.or.jp/statistical/expstatis/headline/hs2dig/e/85.
 
 Most notable case is that Vietnam replaces China as a main export base of 8517 (telephone sets), probably smart phones. Smart phones are not yet imposed tariffs by the US. This replacement is caused by Samsung's strategy to expand smart phone production capacity in Vietnam, and by ZTE and Huawei losing shares in the US. 
 
-Vietnam is also advancing in 8544 (Cables), 9401 (Seats) and 9403 (Other furniture).
+Vietnam is also advancing in 9401 (Seats) and 9403 (Other furniture).
 
-Japan, South Korea and Mexico all supplant China in 8523 (Recording medium).
+South Korea supplants China in 8523 (Recording medium).
 
-Mexico replaces China in 8708 (Auto parts).  
+No winners in 8708 (Auto parts).  
 
 ```{r draw_charts, echo=FALSE, fig.width=8, fig.height=16}
 # draw charts
 # http://www.kanzei.or.jp/statistical/expstatis/headline/hs2dig/e/85
-import_q %>% 
+import_q_diff %>% 
   filter(hs %in% hs_china_loss2) %>% 
-  tq_diff(n = 4) %>% 
-  filter(!is.na(value)) %>% 
-  mutate(quarter = zoo::as.yearqtr(quarter)) %>% 
+  filter(quarter >= yearquarter("2018-01-01")) %>% 
   ggplot(aes(x = quarter, y = value, color = country)) +
-  zoo::scale_x_yearqtr(format = "%y %qQ") +
   geom_hline(yintercept = 0, size = 2, color = "white") +
   geom_line() +
   facet_wrap(~ hs, scales = "free_y") +
   labs(
-    title = "US import changes, quarters, YoY",
-    x = "", y = "million dollars", color = ""
+    title = "US import changes from 2018 Q1, quarters",
+    x = NULL, y = "million dollars", color = NULL
   ) +
+  scale_x_yearquarter(date_labels = "%y %q") +
   theme(legend.position = "bottom")
 
 ```
