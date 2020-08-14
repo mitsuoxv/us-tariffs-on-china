@@ -12,7 +12,7 @@ Mitsuo Shiota
   - [Draw charts of US import changes from 2018 Q1 from each
     country](#draw-charts-of-us-import-changes-from-2018-q1-from-each-country)
 
-Updated: 2020-08-12
+Updated: 2020-08-14
 
 ## Summary
 
@@ -25,7 +25,7 @@ codes.
 
 ## Libraries and functions
 
-I use self-made package `tqr`.
+I use `tidyverse` and `tsibble` packages.
 
 ## Download data
 
@@ -33,12 +33,9 @@ I download US monthly imports from China, Vietnam, Korea, Japan and
 Mexico by HS 4 digit codes since 2017, convert to quartely, and fill 0s
 in gaps.
 
-## Choose HS codes of which imports from China declined significantly in 2020 2Q
+## Choose HS codes of which imports from China declined significantly from 2018 Q1
 
-I first choose HS codes of which imports from China declined by more
-than 200 million dollars in 2020 2Q from a year ago. Next I choose HS
-codes of which imports from China are still more than 500 million
-dollars in 2020 2Q.
+I first choose HS codes of which imports from China declined by more than 200 million dollars from 2018 Q1. Next I choose HS codes of which imports from China are still more than 500 million dollars.
 
 ## Draw charts of US import changes from 2018 Q1 from each country
 

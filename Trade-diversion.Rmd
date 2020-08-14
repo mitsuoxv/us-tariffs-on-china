@@ -21,7 +21,7 @@ US imports from China are decreasing in 2019 due to tariffs, and in 2020 due to 
 
 ## Libraries and functions
 
-I use self-made package `tqr`.
+I use `tidyverse` and `tsibble` packages.
 
 ```{r libraries, include=FALSE}
 # Libraries
@@ -83,10 +83,9 @@ keyring::key_set("census")
 
 ```{r download_data, echo=FALSE, cache=FALSE}
 # Download data
-# import from Vietnum and China
 # https://www.census.gov/foreign-trade/schedules/c/countryname.html
 import <- map_dfr(c(2010, 5520, 5700, 5800, 5880), import_from_country,
-                   hs_digits = 4, year = "from 2017 to 2020")
+                   hs_digits = 4, year = "from 2018 to 2020")
 
 # to million dollars
 import <- import %>% 
@@ -113,7 +112,7 @@ import_q <- import_q %>%
 ```
 
 
-## Choose HS codes of which imports from China declined significantly in 2020 2Q
+## Choose HS codes of which imports from China declined significantly from 2018 Q1
 
 ```{r china_loss, echo=FALSE}
 # tsibble
@@ -121,14 +120,10 @@ import_q <- import_q %>%
   as_tsibble(index = quarter, key = c(country, hs))
 
 # change value to difference with 2018 Q1
-value_2018_Q1 <- import_q %>% 
-  filter(quarter == yearquarter("2018-01-01"))
-
 import_q_diff <- import_q %>% 
-  left_join(value_2018_Q1, by = c("country", "hs")) %>% 
-  mutate(value = value.x - value.y) %>% 
-  rename(quarter = quarter.x) %>% 
-  select(quarter, country, hs, value)
+  group_by(country, hs) %>% 
+  mutate(value = value - value[quarter == yearquarter("2018-01-01")]) %>% 
+  ungroup()
 
 # goods of whch imports from china declines in 2020 2Q by more than 200 million
 # dollars from 2018 Q1
@@ -146,7 +141,7 @@ hs_china_loss2 <- import_q %>%
 
 ```
 
-I first choose HS codes of which imports from China declined by more than 200 million dollars in 2020 2Q from a year ago. Next I choose HS codes of which imports from China are still more than 500 million dollars in 2020 2Q.
+I first choose HS codes of which imports from China declined by more than 200 million dollars from 2018 Q1. Next I choose HS codes of which imports from China are still more than 500 million dollars.
 
 ## Draw charts of US import changes from 2018 Q1 from each country
 
@@ -165,7 +160,6 @@ No winners in 8708 (Auto parts).
 # http://www.kanzei.or.jp/statistical/expstatis/headline/hs2dig/e/85
 import_q_diff %>% 
   filter(hs %in% hs_china_loss2) %>% 
-  filter(quarter >= yearquarter("2018-01-01")) %>% 
   ggplot(aes(x = quarter, y = value, color = country)) +
   geom_hline(yintercept = 0, size = 2, color = "white") +
   geom_line() +
