@@ -7,12 +7,12 @@ Mitsuo Shiota
   - [Libraries and functions](#libraries-and-functions)
   - [Download data](#download-data)
   - [Choose HS codes of which imports from China declined significantly
-    in 2020
-    2Q](#choose-hs-codes-of-which-imports-from-china-declined-significantly-in-2020-2q)
+    from 2018
+    Q1](#choose-hs-codes-of-which-imports-from-china-declined-significantly-from-2018-q1)
   - [Draw charts of US import changes from 2018 Q1 from each
     country](#draw-charts-of-us-import-changes-from-2018-q1-from-each-country)
 
-Updated: 2020-08-14
+Updated: 2020-08-15
 
 ## Summary
 
@@ -35,12 +35,14 @@ in gaps.
 
 ## Choose HS codes of which imports from China declined significantly from 2018 Q1
 
-I first choose HS codes of which imports from China declined by more than 200 million dollars from 2018 Q1. Next I choose HS codes of which imports from China are still more than 500 million dollars.
+I first choose HS codes of which imports from China declined by more
+than 200 million dollars from 2018 Q1. Next I choose HS codes of which
+imports from China are still more than 500 million dollars.
 
 ## Draw charts of US import changes from 2018 Q1 from each country
 
-For the goods descriptions of HS codes, refer to
-<http://www.kanzei.or.jp/statistical/expstatis/headline/hs2dig/e/85>.
+For the goods descriptions of HS codes, I refer to
+<https://dataweb.usitc.gov/classification/commodity-description/HTS/4>.
 
 Most notable case is that Vietnam replaces China as a main export base
 of 8517 (telephone sets), probably smart phones. Smart phones are not

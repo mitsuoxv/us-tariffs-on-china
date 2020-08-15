@@ -145,7 +145,27 @@ I first choose HS codes of which imports from China declined by more than 200 mi
 
 ## Draw charts of US import changes from 2018 Q1 from each country
 
-For the goods descriptions of HS codes, refer to http://www.kanzei.or.jp/statistical/expstatis/headline/hs2dig/e/85.
+For the goods descriptions of HS codes, I refer to https://dataweb.usitc.gov/classification/commodity-description/HTS/4.
+
+```{r hts_4_descriptions, echo=FALSE}
+descriptions <- read_csv("data/descriptions.csv", 
+    col_names = FALSE, col_types = cols(X1 = col_character()))
+
+names(descriptions) <- c("hs", "description")
+
+descriptions <- descriptions %>% 
+  mutate(
+    hs = str_c("0", hs),
+    hs = str_sub(hs, start = -4L),
+    description = str_to_lower(description),
+    description = str_wrap(description, width = 32),
+    description = str_c(hs, description, sep = "\n")
+    )
+
+descri_vector <- descriptions$description
+names(descri_vector) <- descriptions$hs
+
+```
 
 Most notable case is that Vietnam replaces China as a main export base of 8517 (telephone sets), probably smart phones. Smart phones are not yet imposed tariffs by the US. This replacement is caused by Samsung's strategy to expand smart phone production capacity in Vietnam, and by ZTE and Huawei losing shares in the US. 
 
@@ -155,21 +175,20 @@ South Korea supplants China in 8523 (Recording medium).
 
 No winners in 8708 (Auto parts).  
 
-```{r draw_charts, echo=FALSE, fig.width=8, fig.height=16}
+```{r draw_charts, echo=FALSE, fig.width=8, fig.height=32}
 # draw charts
-# http://www.kanzei.or.jp/statistical/expstatis/headline/hs2dig/e/85
 import_q_diff %>% 
   filter(hs %in% hs_china_loss2) %>% 
   ggplot(aes(x = quarter, y = value, color = country)) +
   geom_hline(yintercept = 0, size = 2, color = "white") +
   geom_line() +
-  facet_wrap(~ hs, scales = "free_y") +
+  facet_wrap(~ hs, ncol = 3, scales = "free_y", labeller = labeller(hs = descri_vector)) +
   labs(
     title = "US import changes from 2018 Q1, quarters",
     x = NULL, y = "million dollars", color = NULL
   ) +
   scale_x_yearquarter(date_labels = "%y %q") +
-  theme(legend.position = "bottom")
+  theme(legend.position = "top")
 
 ```
 
