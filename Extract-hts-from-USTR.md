@@ -10,7 +10,7 @@ Mitsuo Shiota
   - [Extract HTS 10 digit codes from exclusion
     lists](#extract-hts-10-digit-codes-from-exclusion-lists)
 
-Updated: 2020-08-12
+Updated: 2020-10-07
 
 ## Summary
 

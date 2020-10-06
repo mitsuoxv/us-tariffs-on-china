@@ -14,7 +14,7 @@ Mitsuo Shiota
   - [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2020-08-12
+Updated: 2020-10-07
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
@@ -95,7 +95,7 @@ claims.
 So far USTR announced exclusion lists 35 times. They specify products
 simply by HTS 10 digit code, or by product description and HTS 10 digit
 code it belong to. When I caluculate simply by HTS 10 digit code,
-exclusions amount to 83.1 billion dollars annually.
+exclusions amount to 81.9 billion dollars annually.
 
 ## Look at the Chinese share movements
 
@@ -139,6 +139,10 @@ What can I say from the chart below?
     exclusion.
 
 7.  China exports declined in February 2020, due to Covid-19 turmoil.
+
+<!-- end list -->
+
+    ## Warning in responseFormat(raw): NAs introduced by coercion
 
 ![](README_files/figure-gfm/get_data-1.png)<!-- -->
 
