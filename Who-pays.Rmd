@@ -88,18 +88,18 @@ keyring::key_set("census")
 ```
 
 ```{r get_data, echo=FALSE, warning=FALSE, cache=FALSE}
-df_m <- import_from_country(5700, "from 2018 to 2020")
+df_m_raw <- import_from_country(5700, "from 2018 to 2020")
 
 ```
 
-The number of HTS 10 digit code items are `r df_m$hs10 %>% unique() %>% length()`.
+The number of HTS 10 digit code items are `r df_m_raw$hs10 %>% unique() %>% length()`.
 
 ## Index unit price of the first half of 2018 as 100
 
 As I have to drop so many data to calculate unit price as value divided by quantity in a specific month, I index unit price as of the first half of 2018 equals to 100.
 
 ```{r index_unit_price, echo=FALSE}
-unit_price_base <- df_m %>%
+unit_price_base <- df_m_raw %>%
   filter(time >= "2018-01-01", time <= "2018-06-01") %>% 
   group_by(hs10) %>% 
   summarize(
@@ -110,7 +110,7 @@ unit_price_base <- df_m %>%
   mutate(unit_price = value / quantity) %>% 
   select(hs10, unit_price)
 
-df_m <- df_m %>% 
+df_m <- df_m_raw %>% 
   mutate(unit_price = value / quantity) %>% 
   inner_join(unit_price_base, by = "hs10") %>% 
   mutate(index = unit_price.x / unit_price.y * 100) %>% 
@@ -211,6 +211,148 @@ df_sum2
 
 ```
 
-Chinese are paying `r round(100 - as.numeric(df_sum2[1, 3]), 1)` out of 25 percent in "34b", `r round(100 - as.numeric(df_sum2[2, 3]), 1)` out of 25 in "16b", `r round(100 - as.numeric(df_sum2[3, 3]), 1)` out of 25 in "200b", and `r round(100 - as.numeric(df_sum2[4, 3]), 1)` out of 7.5 in "300b_a" in the latest month. Sould I subtract `r round(100 - as.numeric(df_sum2[6, 3]), 1)` percent decline of "rest"?
+Chinese are paying `r round(100 - as.numeric(df_sum2[1, 3]), 1)` out of 25 percent in "34b", `r round(100 - as.numeric(df_sum2[2, 3]), 1)` out of 25 in "16b", `r round(100 - as.numeric(df_sum2[3, 3]), 1)` out of 25 in "200b", and `r round(100 - as.numeric(df_sum2[4, 3]), 1)` out of 7.5 in "300b_a" in the latest month. Should I subtract `r round(100 - as.numeric(df_sum2[6, 3]), 1)` percent decline of "rest"?
+
+## Correction
+
+On October 26, 2020, I found price index movements above are not compatible with [US import price index: China, in total](https://fred.stlouisfed.org/series/CHNTOT). In 2020, every price index of tariff schedule category above shows rapid decline, while the total price index shows stabilization or even a bit of increase.
+
+Then I noticed there are a lot of zeroes in 2020 in the price index box plots above, especially those of "34b" and "excl". Price index, which is value divided by quantity and is standardized, can't be zero. It turned out there are `r df_m %>% filter(index == 0) %>% nrow()` zero indices.
+
+Where these zero indices come from? Small parts, `r df_m %>% filter(value == 0) %>% nrow()`, come from zero values. Most parts must come from standardization. It leads to my guess that unit is revised at the start of every year.
+
+```{r zero_price}
+# zero indices in 2018
+df_m %>% 
+  filter(index == 0, time >= "2018-01-01", time < "2019-01-01") %>% 
+  nrow()
+
+# in 2019
+df_m %>% 
+  filter(index == 0, time >= "2019-01-01", time < "2020-01-01") %>% 
+  nrow()
+
+# in 2020
+df_m %>% 
+  filter(index == 0, time >= "2020-01-01") %>% 
+  nrow()
+
+```
+
+If unit is inconsistent over years, my method of calculation of price index is meaningless.
+
+Anyway, I remove zero value and zero index, and recalculate below.
+
+```{r recalculate, echo=FALSE}
+df_m_no_zero_value <- df_m_raw %>% 
+  filter(value != 0)
+
+unit_price_base <- df_m_no_zero_value %>%
+  filter(time >= "2018-01-01", time <= "2018-06-01") %>% 
+  group_by(hs10) %>% 
+  summarize(
+    value = sum(value),
+    quantity = sum(quantity),
+    .groups = "drop_last"
+  ) %>% 
+  mutate(unit_price = value / quantity) %>% 
+  select(hs10, unit_price)
+
+df_m2 <- df_m_no_zero_value %>% 
+  mutate(unit_price = value / quantity) %>% 
+  inner_join(unit_price_base, by = "hs10") %>% 
+  mutate(index = unit_price.x / unit_price.y * 100) %>% 
+  drop_na(index) %>% 
+  filter(index < Inf, index > 0)
+
+# add category
+df_m2 <- df_m2 %>% 
+  left_join(df_list_34b, by = "hs8") %>% 
+  left_join(df_list_16b, by = "hs8") %>% 
+  left_join(df_list_200b, by = "hs8") %>% 
+  left_join(df_list_300b_a, by = "hs8") %>% 
+#  left_join(df_list_300b_c, by = "hs8") %>% 
+  left_join(df_list_excl, by = "hs10") %>% 
+  replace_na(list(
+    trf_34b = FALSE,
+    trf_16b = FALSE,
+    trf_200b = FALSE,
+    trf_300b_a = FALSE,
+#    trf_300b_c = FALSE,
+    trf_excl = FALSE
+  )) %>% 
+  mutate(
+    category_old = if_else(trf_34b, "34b",
+                       if_else(trf_16b, "16b",
+                               if_else(trf_200b, "200b",
+                                       if_else(trf_300b_a, "300b_a", "rest")))),
+    category = if_else(trf_excl, "excl", category_old)
+  ) %>% 
+  select(-starts_with("trf_"), -category_old)
+
+df_m2$category <- factor(df_m2$category, 
+                            levels = c("34b", "16b", "200b", "300b_a", "excl", "rest"))
+
+```
+
+
+The number of HTS 10 digit code items by category are as below.
+
+```{r n_by_category2, echo=FALSE}
+df_m2 %>% 
+  select(hs10, category) %>% 
+  unique() %>% 
+  group_by(category) %>% 
+  count()
+
+```
+
+Box plots.
+
+```{r boxplot2, echo=FALSE, fig.width=8, fig.height=6}
+df_m2 %>% 
+  ggplot(aes(time, index)) +
+  geom_boxplot(aes(group = time)) +
+  facet_wrap(~ category) +
+  coord_cartesian(ylim = c(0, 200)) +
+  labs(
+    title = "Price index",
+    x ="", y = "index (2018 1H = 100)"
+  )
+
+```
+
+Line charts.
+
+```{r line_chart2, echo=FALSE, warning=FALSE, fig.width=6, fig.height=6}
+df_sum <- df_m2 %>% 
+  group_by(category, time) %>% 
+  summarize(index = median(index), .groups = "drop_last")
+
+df_sum %>% 
+  ggplot(aes(time, index,
+             color = fct_reorder2(category, time, index))) +
+  geom_hline(yintercept = 100, color = "white", size = 2) +
+  geom_line() +
+  labs(
+    title = "Median price index by category",
+    x = "", y = "Median price index (2018 1H = 100)", color = ""
+  )
+
+```
+
+In the latest month, median price indices by category are as below.
+
+```{r price_decline2, echo=FALSE}
+df_sum2 <- df_sum %>% 
+  filter(time == max(df_sum$time))
+
+df_sum2
+
+```
+
+Chinese are paying `r round(100 - as.numeric(df_sum2[1, 3]), 1)` out of 25 percent in "34b", `r round(100 - as.numeric(df_sum2[2, 3]), 1)` out of 25 in "16b", `r round(100 - as.numeric(df_sum2[3, 3]), 1)` out of 25 in "200b", and `r round(100 - as.numeric(df_sum2[4, 3]), 1)` out of 7.5 in "300b_a" in the latest month. Should I subtract `r round(100 - as.numeric(df_sum2[6, 3]), 1)` percent decline of "rest"?
+
+Looks less incompatible with [US import price index: China, in total](https://fred.stlouisfed.org/series/CHNTOT), though volatile "34b" suggests I had better cut off high indices at certain level.
 
 EOL

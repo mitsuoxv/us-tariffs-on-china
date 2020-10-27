@@ -13,8 +13,9 @@ Mitsuo Shiota
     100](#index-unit-price-of-the-first-half-of-2018-as-100)
   - [Look at the price changes from the first half of
     2018](#look-at-the-price-changes-from-the-first-half-of-2018)
+  - [Correction](#correction)
 
-Updated: 2020-10-07
+Updated: 2020-10-27
 
 ## Motivation and purpose
 
@@ -100,6 +101,97 @@ In the latest month, median price indices by category are as below.
 
 Chinese are paying 33.9 out of 25 percent in “34b”, 12 out of 25 in
 “16b”, 10.7 out of 25 in “200b”, and 11.7 out of 7.5 in “300b\_a” in
-the latest month. Sould I subtract 11.8 percent decline of “rest”?
+the latest month. Should I subtract 11.8 percent decline of “rest”?
+
+## Correction
+
+On October 26, 2020, I found price index movements above are not
+compatible with [US import price index: China, in
+total](https://fred.stlouisfed.org/series/CHNTOT). In 2020, every price
+index of tariff schedule category above shows rapid decline, while the
+total price index shows stabilization or even a bit of increase.
+
+Then I noticed there are a lot of zeroes in 2020 in the price index box
+plots above, especially those of “34b” and “excl”. Price index, which is
+value divided by quantity and is standardized, can’t be zero. It turned
+out there are 17967 zero indices.
+
+Where these zero indices come from? Small parts, 764, come from zero
+values. Most parts must come from standardization. It leads to my guess
+that unit is revised at the start of every year.
+
+``` r
+# zero indices in 2018
+df_m %>% 
+  filter(index == 0, time >= "2018-01-01", time < "2019-01-01") %>% 
+  nrow()
+```
+
+    ## [1] 314
+
+``` r
+# in 2019
+df_m %>% 
+  filter(index == 0, time >= "2019-01-01", time < "2020-01-01") %>% 
+  nrow()
+```
+
+    ## [1] 7346
+
+``` r
+# in 2020
+df_m %>% 
+  filter(index == 0, time >= "2020-01-01") %>% 
+  nrow()
+```
+
+    ## [1] 10307
+
+If unit is inconsistent over years, my method of calculation of price
+index is meaningless.
+
+Anyway, I remove zero value and zero index, and recalculate below.
+
+The number of HTS 10 digit code items by category are as below.
+
+    ## # A tibble: 6 x 2
+    ## # Groups:   category [6]
+    ##   category     n
+    ##   <fct>    <int>
+    ## 1 34b        889
+    ## 2 16b        314
+    ## 3 200b      5671
+    ## 4 300b_a    3557
+    ## 5 excl       336
+    ## 6 rest      1295
+
+Box plots.
+
+![](Who-pays_files/figure-gfm/boxplot2-1.png)<!-- -->
+
+Line charts.
+
+![](Who-pays_files/figure-gfm/line_chart2-1.png)<!-- -->
+
+In the latest month, median price indices by category are as below.
+
+    ## # A tibble: 6 x 3
+    ## # Groups:   category [6]
+    ##   category time       index
+    ##   <fct>    <date>     <dbl>
+    ## 1 34b      2020-08-01 104. 
+    ## 2 16b      2020-08-01  96.2
+    ## 3 200b     2020-08-01  94.4
+    ## 4 300b_a   2020-08-01  95.2
+    ## 5 excl     2020-08-01  94.1
+    ## 6 rest     2020-08-01  94.7
+
+Chinese are paying -4 out of 25 percent in “34b”, 3.8 out of 25 in
+“16b”, 5.6 out of 25 in “200b”, and 4.8 out of 7.5 in “300b\_a” in
+the latest month. Should I subtract 5.3 percent decline of “rest”?
+
+Looks less incompatible with [US import price index: China, in
+total](https://fred.stlouisfed.org/series/CHNTOT), though volatile “34b”
+suggests I had better cut off high indices at certain level.
 
 EOL
