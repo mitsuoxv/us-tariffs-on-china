@@ -129,13 +129,13 @@ import_q_diff <- import_q %>%
 # dollars from 2018 Q1
 hs_china_loss <- import_q_diff %>% 
   filter(country == "CHINA") %>% 
-  filter(quarter == yearquarter("2020-04-01"), value < -200) %>% 
+  filter(quarter == yearquarter("2020-07-01"), value < -200) %>% 
   pull("hs")
 
 # and imports from china in 2020 2Q still more than 500 million dollars
 hs_china_loss2 <- import_q %>% 
   filter(hs %in% hs_china_loss) %>% 
-  filter(quarter == yearquarter("2020-04-01"), value > 500) %>% 
+  filter(quarter == yearquarter("2020-07-01"), value > 500) %>% 
   pull("hs") %>% 
   unique()
 
