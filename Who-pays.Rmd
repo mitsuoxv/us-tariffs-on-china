@@ -27,24 +27,27 @@ Looking at [census data page](https://api.census.gov/data/timeseries/intltrade/i
 library(tidyverse)
 
 # Functions
-# transform df to 6 column df of time, hs10, hs8, value, quantity and unit
+# transform df to 8 column df of time, hs10, hs8, value, quantity1, unit1, quantity2 and unit2
 sum2hs8 <- function(df) {
     df$GEN_VAL_MO <- as.numeric(df$GEN_VAL_MO)
     df$CON_QY1_MO <- as.numeric(df$CON_QY1_MO)
-    
+    df$CON_QY2_MO <- as.numeric(df$CON_QY2_MO)
+
     df$time <- as.Date(paste0(df$time, "-01"), "%Y-%m-%d")
     
     df %>% 
       rename(
         hs10 = I_COMMODITY,
         value = GEN_VAL_MO,
-        quantity = CON_QY1_MO,
-        unit = UNIT_QY1
+        quantity1 = CON_QY1_MO,
+        unit1 = UNIT_QY1,
+        quantity2 = CON_QY2_MO,
+        unit2 = UNIT_QY2
       ) %>% 
       mutate(
         hs8 = str_sub(hs10, end = -3L) # cut codes from 10 to 8 digits
       ) %>% 
-      select(time, hs10, hs8, value, quantity, unit) %>% 
+      select(time, hs10, hs8, value, quantity1, unit1, quantity2, unit2) %>% 
       arrange(time, hs10)
   }
 
@@ -53,7 +56,7 @@ import_from_country <- function(country, year) {
   df <- censusapi::getCensus(
     name = "timeseries/intltrade/imports/hs",
     key = keyring::key_get("census"),
-    vars = c("I_COMMODITY", "GEN_VAL_MO", "CON_QY1_MO", "UNIT_QY1"),
+    vars = c("I_COMMODITY", "GEN_VAL_MO", "CON_QY1_MO", "UNIT_QY1", "CON_QY2_MO", "UNIT_QY2"),
     time = year,
     CTY_CODE = country,
     COMM_LVL = "HS10"
@@ -105,14 +108,14 @@ unit_price_base <- df_m_raw %>%
   group_by(hs10) %>% 
   summarize(
     value = sum(value),
-    quantity = sum(quantity),
+    quantity = sum(quantity1),
     .groups = "drop_last"
   ) %>% 
-  mutate(unit_price = value / quantity) %>% 
+  mutate(unit_price = value / quantity1) %>% 
   select(hs10, unit_price)
 
 df_m <- df_m_raw %>% 
-  mutate(unit_price = value / quantity) %>% 
+  mutate(unit_price = value / quantity1) %>% 
   inner_join(unit_price_base, by = "hs10") %>% 
   mutate(index = unit_price.x / unit_price.y * 100) %>% 
   drop_na(index) %>% 
@@ -240,15 +243,25 @@ df_m %>%
 
 ```
 
-If unit is inconsistent over years, my method of calculation of price index is meaningless. Let us check 'unit' column, which is supposed to be 3-character import unit of quantity.
+If unit is inconsistent over years, my method of calculation of price index is meaningless. Let us check 'unit1' column, which is supposed to be 3-character import unit of quantity.
 
-```{r check_unit}
+```{r check_unit1}
+head(df_m_raw)
+
 df_m_raw %>%
-  drop_na(unit)
+  drop_na(unit1)
 
 ```
 
-It turns out 'unit' column is all NA, so I can't check unit consistency.
+It turns out 'unit1' column is all NAs. How about 'unit2' column? 
+
+```{r check_unit2}
+df_m_raw %>%
+  drop_na(unit2)
+
+```
+
+'unit2' column is all NAs, too. I can't check unit consistency.
 
 As a last resort, I remove zero value and zero index, and recalculate below.
 
