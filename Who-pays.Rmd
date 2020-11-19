@@ -27,7 +27,7 @@ Looking at [census data page](https://api.census.gov/data/timeseries/intltrade/i
 library(tidyverse)
 
 # Functions
-# transform df to 4 column df of time, hs10, hs8 and value
+# transform df to 6 column df of time, hs10, hs8, value, quantity and unit
 sum2hs8 <- function(df) {
     df$GEN_VAL_MO <- as.numeric(df$GEN_VAL_MO)
     df$CON_QY1_MO <- as.numeric(df$CON_QY1_MO)
@@ -38,12 +38,13 @@ sum2hs8 <- function(df) {
       rename(
         hs10 = I_COMMODITY,
         value = GEN_VAL_MO,
-        quantity = CON_QY1_MO
+        quantity = CON_QY1_MO,
+        unit = UNIT_QY1
       ) %>% 
       mutate(
         hs8 = str_sub(hs10, end = -3L) # cut codes from 10 to 8 digits
       ) %>% 
-      select(time, hs10, hs8, value, quantity) %>% 
+      select(time, hs10, hs8, value, quantity, unit) %>% 
       arrange(time, hs10)
   }
 
@@ -239,9 +240,17 @@ df_m %>%
 
 ```
 
-If unit is inconsistent over years, my method of calculation of price index is meaningless.
+If unit is inconsistent over years, my method of calculation of price index is meaningless. Let us check 'unit' column, which is supposed to be 3-character import unit of quantity.
 
-Anyway, I remove zero value and zero index, and recalculate below.
+```{r check_unit}
+df_m_raw %>%
+  drop_na(unit)
+
+```
+
+It turns out 'unit' column is all NA, so I can't check unit consistency.
+
+As a last resort, I remove zero value and zero index, and recalculate below.
 
 ```{r recalculate, echo=FALSE}
 df_m_no_zero_value <- df_m_raw %>% 
