@@ -20,7 +20,7 @@ On May 11, 2019, Japanese newspaper Nikkei reported that China pays most of the 
 
 ## Libraries and functions
 
-Looking at [census data page](https://api.census.gov/data/timeseries/intltrade/imports/hs/variables.html), I decide to select "GEN_VAL_MO" as value, and "CON_QY1_MO" as quantity, though I selected "GEN_CIF_MO" as value in [the original analysis](README.md).
+Looking at [census data page](https://api.census.gov/data/timeseries/intltrade/imports/hs/variables.html), I decide to select "GEN_VAL_MO" as value, "CON_QY1_MO" as quantity1, and "CON_QY2_MO" as quantity2, though I selected "GEN_CIF_MO" as value in [the original analysis](README.md).
 
 ```{r libraries, include=FALSE}
 # Libraries
@@ -111,7 +111,7 @@ unit_price_base <- df_m_raw %>%
     quantity = sum(quantity1),
     .groups = "drop_last"
   ) %>% 
-  mutate(unit_price = value / quantity1) %>% 
+  mutate(unit_price = value / quantity) %>% 
   select(hs10, unit_price)
 
 df_m <- df_m_raw %>% 
@@ -274,14 +274,14 @@ unit_price_base <- df_m_no_zero_value %>%
   group_by(hs10) %>% 
   summarize(
     value = sum(value),
-    quantity = sum(quantity),
+    quantity = sum(quantity1),
     .groups = "drop_last"
   ) %>% 
   mutate(unit_price = value / quantity) %>% 
   select(hs10, unit_price)
 
 df_m2 <- df_m_no_zero_value %>% 
-  mutate(unit_price = value / quantity) %>% 
+  mutate(unit_price = value / quantity1) %>% 
   inner_join(unit_price_base, by = "hs10") %>% 
   mutate(index = unit_price.x / unit_price.y * 100) %>% 
   drop_na(index) %>% 

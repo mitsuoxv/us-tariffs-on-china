@@ -15,7 +15,7 @@ Mitsuo Shiota
     2018](#look-at-the-price-changes-from-the-first-half-of-2018)
   - [Correction](#correction)
 
-Updated: 2020-12-07
+Updated: 2021-01-08
 
 ## Motivation and purpose
 
@@ -34,9 +34,9 @@ by tariff schedule category.
 
 Looking at [census data
 page](https://api.census.gov/data/timeseries/intltrade/imports/hs/variables.html),
-I decide to select “GEN\_VAL\_MO” as value, and “CON\_QY1\_MO” as
-quantity, though I selected “GEN\_CIF\_MO” as value in [the original
-analysis](README.md).
+I decide to select “GEN\_VAL\_MO” as value, “CON\_QY1\_MO” as quantity1,
+and “CON\_QY2\_MO” as quantity2, though I selected “GEN\_CIF\_MO” as
+value in [the original analysis](README.md).
 
 ## Extract HTS 8 digit codes for “34b”, “16b”, “200b” and “300b\_a”, and 10 digit codes for “excl”
 
@@ -45,7 +45,7 @@ page](Extract-hts-from-USTR.md).
 
 ## Get monthly import data
 
-The number of HTS 10 digit code items are 15637.
+The number of HTS 10 digit code items are 15672.
 
 ## Index unit price of the first half of 2018 as 100
 
@@ -62,12 +62,12 @@ The number of HTS 10 digit code items by category are as below.
     ## # Groups:   category [6]
     ##   category     n
     ##   <fct>    <int>
-    ## 1 34b       1202
+    ## 1 34b       1203
     ## 2 16b        337
-    ## 3 200b      6137
+    ## 3 200b      6139
     ## 4 300b_a    3855
     ## 5 excl       450
-    ## 6 rest      1483
+    ## 6 rest      1484
 
 ## Look at the price changes from the first half of 2018
 
@@ -92,16 +92,16 @@ In the latest month, median price indices by category are as below.
     ## # Groups:   category [6]
     ##   category time       index
     ##   <fct>    <date>     <dbl>
-    ## 1 34b      2020-10-01  67.7
-    ## 2 16b      2020-10-01  93.1
-    ## 3 200b     2020-10-01  89.6
-    ## 4 300b_a   2020-10-01  89.1
-    ## 5 excl     2020-10-01  78.1
-    ## 6 rest     2020-10-01  90.4
+    ## 1 34b      2020-11-01  58.3
+    ## 2 16b      2020-11-01  91.7
+    ## 3 200b     2020-11-01  88.5
+    ## 4 300b_a   2020-11-01  86.3
+    ## 5 excl     2020-11-01  79.1
+    ## 6 rest     2020-11-01  87.6
 
-Chinese are paying 32.3 out of 25 percent in “34b”, 6.9 out of 25 in
-“16b”, 10.4 out of 25 in “200b”, and 10.9 out of 7.5 in “300b\_a” in
-the latest month. Should I subtract 9.6 percent decline of “rest”?
+Chinese are paying 41.7 out of 25 percent in “34b”, 8.3 out of 25 in
+“16b”, 11.5 out of 25 in “200b”, and 13.7 out of 7.5 in “300b\_a” in
+the latest month. Should I subtract 12.4 percent decline of “rest”?
 
 ## Correction
 
@@ -114,9 +114,9 @@ total price index shows stabilization or even a bit of increase.
 Then I noticed there are a lot of zeroes in 2020 in the price index box
 plots above, especially those of “34b” and “excl”. Price index, which is
 value divided by quantity and is standardized, can’t be zero. It turned
-out there are 20530 zero indices.
+out there are 21833 zero indices.
 
-Where these zero indices come from? Small parts, 804, come from zero
+Where these zero indices come from? Small parts, 829, come from zero
 values. Most parts must come from standardization. It leads to my guess
 that unit is revised at the start of every year.
 
@@ -145,12 +145,48 @@ df_m %>%
   nrow()
 ```
 
-    ## [1] 12870
+    ## [1] 14173
 
 If unit is inconsistent over years, my method of calculation of price
-index is meaningless.
+index is meaningless. Let us check ‘unit1’ column, which is supposed to
+be 3-character import unit of quantity.
 
-Anyway, I remove zero value and zero index, and recalculate below.
+``` r
+head(df_m_raw)
+```
+
+    ##         time       hs10      hs8   value quantity1 unit1 quantity2 unit2
+    ## 1 2018-01-01 0106110000 01061100 3041638      1320    NA         0    NA
+    ## 2 2018-01-01 0106199195 01061991   10650       228    NA         0    NA
+    ## 3 2018-01-01 0204432000 02044320   81634     14051    NA         0    NA
+    ## 4 2018-01-01 0208100000 02081000  196370     46000    NA         0    NA
+    ## 5 2018-01-01 0208902500 02089025 1269300    243862    NA         0    NA
+    ## 6 2018-01-01 0301110020 03011100  122342         0    NA         0    NA
+
+``` r
+df_m_raw %>%
+  drop_na(unit1)
+```
+
+    ## [1] time      hs10      hs8       value     quantity1 unit1     quantity2
+    ## [8] unit2    
+    ## <0 rows> (or 0-length row.names)
+
+It turns out ‘unit1’ column is all NAs. How about ‘unit2’ column?
+
+``` r
+df_m_raw %>%
+  drop_na(unit2)
+```
+
+    ## [1] time      hs10      hs8       value     quantity1 unit1     quantity2
+    ## [8] unit2    
+    ## <0 rows> (or 0-length row.names)
+
+‘unit2’ column is all NAs, too. I can’t check unit consistency.
+
+As a last resort, I remove zero value and zero index, and recalculate
+below.
 
 The number of HTS 10 digit code items by category are as below.
 
@@ -179,16 +215,16 @@ In the latest month, median price indices by category are as below.
     ## # Groups:   category [6]
     ##   category time       index
     ##   <fct>    <date>     <dbl>
-    ## 1 34b      2020-10-01 105. 
-    ## 2 16b      2020-10-01  99.1
-    ## 3 200b     2020-10-01  95.5
-    ## 4 300b_a   2020-10-01  94.9
-    ## 5 excl     2020-10-01  90.8
-    ## 6 rest     2020-10-01  96.3
+    ## 1 34b      2020-11-01  99.5
+    ## 2 16b      2020-11-01  99.0
+    ## 3 200b     2020-11-01  93.9
+    ## 4 300b_a   2020-11-01  92.0
+    ## 5 excl     2020-11-01  90.6
+    ## 6 rest     2020-11-01  94.8
 
-Chinese are paying -4.5 out of 25 percent in “34b”, 0.9 out of 25 in
-“16b”, 4.5 out of 25 in “200b”, and 5.1 out of 7.5 in “300b\_a” in the
-latest month. Should I subtract 3.7 percent decline of “rest”?
+Chinese are paying 0.5 out of 25 percent in “34b”, 1 out of 25 in “16b”,
+6.1 out of 25 in “200b”, and 8 out of 7.5 in “300b\_a” in the latest
+month. Should I subtract 5.2 percent decline of “rest”?
 
 Looks less incompatible with [US import price index: China, in
 total](https://fred.stlouisfed.org/series/CHNTOT), though volatile “34b”

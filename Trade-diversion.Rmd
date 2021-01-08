@@ -100,13 +100,13 @@ import_q <- import %>%
 
 # fill 0
 import_q <- import_q %>% 
-  spread(key = country, value = value, fill = 0) %>% 
-  gather(key = "country", value = "value", -hs, -quarter)
+  pivot_wider(names_from = country, values_from = value, values_fill = 0) %>% 
+  pivot_longer(!c(hs, quarter), names_to = "country", values_to = "value")
 
 # fill 0
 import_q <- import_q %>% 
-  spread(key = hs, value = value, fill = 0) %>% 
-  gather(key = "hs", value = "value", -quarter, -country)
+  pivot_wider(names_from = hs, values_from = value, values_fill = 0) %>% 
+  pivot_longer(!c(quarter, country), names_to = "hs", values_to = "value")
 
 
 ```
