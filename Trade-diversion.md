@@ -3,16 +3,16 @@ Who replaces China in US imports?
 Mitsuo Shiota
 2019-08-06
 
-  - [Summary](#summary)
-  - [Libraries and functions](#libraries-and-functions)
-  - [Download data](#download-data)
-  - [Choose HS codes of which imports from China declined significantly
+-   [Summary](#summary)
+-   [Libraries and functions](#libraries-and-functions)
+-   [Download data](#download-data)
+-   [Choose HS codes of which imports from China declined significantly
     from 2018
     Q1](#choose-hs-codes-of-which-imports-from-china-declined-significantly-from-2018-q1)
-  - [Draw charts of US import changes from 2018 Q1 from each
+-   [Draw charts of US import changes from 2018 Q1 from each
     country](#draw-charts-of-us-import-changes-from-2018-q1-from-each-country)
 
-Updated: 2020-11-05
+Updated: 2021-02-06
 
 ## Summary
 
@@ -45,14 +45,12 @@ For the goods descriptions of HS codes, I refer to
 <https://dataweb.usitc.gov/classification/commodity-description/HTS/4>.
 
 Most notable case is that Vietnam replaces China as a main export base
-of 8517 (telephone sets), probably smart phones. Smart phones are not
-yet imposed tariffs by the US. This replacement is caused by Samsung’s
-strategy to expand smart phone production capacity in Vietnam, and by
-ZTE and Huawei losing shares in the US.
+of 8541 (Diodes, transistors) and 8542 (Integrated circuits).
 
 Vietnam is also advancing in 9401 (Seats) and 9403 (Other furniture).
 
-South Korea supplants China in 8523 (Recording medium).
+South Korea supplants China in 8415 (Air conditioning machines) and 8523
+(Recording medium).
 
 No winners in 8708 (Auto parts).
 

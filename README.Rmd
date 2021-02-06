@@ -23,7 +23,7 @@ I added an analysis of who pays tariffs in [another page](Who-pays.md).
 - [Chinese shares in US imports in tariff imposed goods and others in pdf](output/chinese-shares.pdf)
 - [Chinese shares in HTS 8 digit imports by tariff schedule (2018) in pdf](output/chinese-shares2.pdf)
 
-I load an rdata file containing tariff lists and an exclusion list, which I have saved in [the separate page](Extract-hts-from-USTR.md).
+I load an rdata file containing tariff lists and an exclusion list, which I have saved in [the separate page](Extract-hts-from-USTR.md). Note that I assume wrongly that granted product exclusion will never expire, as I can't take in expiration information.
 
 Next, I get data via API from [Census Bureau U.S. International Trade Data](https://www.census.gov/foreign-trade/data/), and confirm the each list is  really worth 34, 16 and 200 billion dollars respectively.
 
@@ -241,7 +241,7 @@ df_total %>%
   geom_line(size = 1) +
   labs(
     title = "Chinese shares in US imports",
-    x = "",
+    x = NULL,
     y = "percent",
     color = "category"
   )
@@ -270,7 +270,7 @@ df_total %>%
   geom_boxplot() +
   labs(
     title = "Chinese shares by tariff schedule (2018)",
-    x = "",
+    x = NULL,
     y = "percent"
   )
 

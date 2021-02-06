@@ -20,18 +20,20 @@ On May 11, 2019, Japanese newspaper Nikkei reported that China pays most of the 
 
 ## Libraries and functions
 
-Looking at [census data page](https://api.census.gov/data/timeseries/intltrade/imports/hs/variables.html), I decide to select "GEN_VAL_MO" as value, "CON_QY1_MO" as quantity1, and "CON_QY2_MO" as quantity2, though I selected "GEN_CIF_MO" as value in [the original analysis](README.md).
+Looking at [census data page](https://api.census.gov/data/timeseries/intltrade/imports/hs/variables.html), I decide to select "GEN_VAL_MO" as value, "GEN_QY1_MO" as quantity1, and "GEN_QY2_MO" as quantity2, though I selected "GEN_CIF_MO" as value in [the original analysis](README.md).
 
 ```{r libraries, include=FALSE}
-# Libraries
 library(tidyverse)
 
-# Functions
+```
+
+
+```{r functions, include=FALSE}
 # transform df to 8 column df of time, hs10, hs8, value, quantity1, unit1, quantity2 and unit2
 sum2hs8 <- function(df) {
     df$GEN_VAL_MO <- as.numeric(df$GEN_VAL_MO)
-    df$CON_QY1_MO <- as.numeric(df$CON_QY1_MO)
-    df$CON_QY2_MO <- as.numeric(df$CON_QY2_MO)
+    df$GEN_QY1_MO <- as.numeric(df$GEN_QY1_MO)
+    df$GEN_QY2_MO <- as.numeric(df$GEN_QY2_MO)
 
     df$time <- as.Date(paste0(df$time, "-01"), "%Y-%m-%d")
     
@@ -39,15 +41,13 @@ sum2hs8 <- function(df) {
       rename(
         hs10 = I_COMMODITY,
         value = GEN_VAL_MO,
-        quantity1 = CON_QY1_MO,
-        unit1 = UNIT_QY1,
-        quantity2 = CON_QY2_MO,
-        unit2 = UNIT_QY2
+        quantity1 = GEN_QY1_MO,
+        quantity2 = GEN_QY2_MO
       ) %>% 
       mutate(
         hs8 = str_sub(hs10, end = -3L) # cut codes from 10 to 8 digits
       ) %>% 
-      select(time, hs10, hs8, value, quantity1, unit1, quantity2, unit2) %>% 
+      select(time, hs10, hs8, value, quantity1, quantity2) %>% 
       arrange(time, hs10)
   }
 
@@ -56,13 +56,13 @@ import_from_country <- function(country, year) {
   df <- censusapi::getCensus(
     name = "timeseries/intltrade/imports/hs",
     key = keyring::key_get("census"),
-    vars = c("I_COMMODITY", "GEN_VAL_MO", "CON_QY1_MO", "UNIT_QY1", "CON_QY2_MO", "UNIT_QY2"),
+    vars = c("I_COMMODITY", "GEN_VAL_MO", "GEN_QY1_MO", "GEN_QY2_MO"),
     time = year,
     CTY_CODE = country,
     COMM_LVL = "HS10"
     )
 
-  df %>% 
+  df %>%
     sum2hs8()
 }
 
@@ -72,7 +72,7 @@ import_from_country <- function(country, year) {
 
 I load tariff lists I have saved in [the separate page](Extract-hts-from-USTR.md).
 
-```{r load_tariff_list, echo=FALSE, results="hide", cache=FALSE}
+```{r load_tariff_list, echo=FALSE, results="hide", cache=TRUE}
 # load data
 load("data/tariff_list.rdata")
 
@@ -91,7 +91,7 @@ keyring::key_set("census")
 
 ```
 
-```{r get_data, echo=FALSE, warning=FALSE, cache=FALSE}
+```{r get_data, echo=FALSE, warning=FALSE, cache=TRUE}
 df_m_raw <- import_from_country(5700, "from 2018 to 2020")
 
 ```
@@ -181,7 +181,7 @@ df_m %>%
   coord_cartesian(ylim = c(0, 200)) +
   labs(
     title = "Price index",
-    x ="", y = "index (2018 1H = 100)"
+    x = NULL, y = "index (2018 1H = 100)"
   )
 
 ```
@@ -200,7 +200,7 @@ df_sum %>%
   geom_line() +
   labs(
     title = "Median price index by category",
-    x = "", y = "Median price index (2018 1H = 100)", color = ""
+    x = NULL, y = "Median price index (2018 1H = 100)", color = ""
   )
 
 ```
@@ -243,25 +243,38 @@ df_m %>%
 
 ```
 
-If unit is inconsistent over years, my method of calculation of price index is meaningless. Let us check 'unit1' column, which is supposed to be 3-character import unit of quantity.
+If unit is inconsistent over years, my method of calculation of price index is meaningless. Let us check whether I can get information on import unit of quantity.
 
-```{r check_unit1}
-head(df_m_raw)
-
-df_m_raw %>%
-  drop_na(unit1)
-
-```
-
-It turns out 'unit1' column is all NAs. How about 'unit2' column? 
-
-```{r check_unit2}
-df_m_raw %>%
-  drop_na(unit2)
+```{r unit_info}
+try(
+  censusapi::getCensus(
+    name = "timeseries/intltrade/imports/hs",
+    key = keyring::key_get("census"),
+    vars = c("GEN_QY1_MO_FLAG", "UNIT_QY1", "GEN_QY2_MO_FLAG", "UNIT_QY2"),
+    time = 2020,
+    CTY_CODE = 5700,
+    COMM_LVL = "HS10"
+    )
+)
 
 ```
 
-'unit2' column is all NAs, too. I can't check unit consistency.
+Error! OK, let us see listCensusMetadata.
+
+```{r metadata}
+hs_vars <- censusapi::listCensusMetadata(
+    name = "timeseries/intltrade/imports/hs", 
+    type = "variables")
+
+hs_vars %>% 
+  filter(str_detect(name, "UNIT"))
+
+hs_vars %>% 
+  filter(str_detect(name, "FLAG"))
+
+```
+
+It is not available whether input in information about unit is required or not, but it looks like no input there. I can't check unit consistency.
 
 As a last resort, I remove zero value and zero index, and recalculate below.
 
@@ -375,6 +388,8 @@ df_sum2
 
 Chinese are paying `r round(100 - as.numeric(df_sum2[1, 3]), 1)` out of 25 percent in "34b", `r round(100 - as.numeric(df_sum2[2, 3]), 1)` out of 25 in "16b", `r round(100 - as.numeric(df_sum2[3, 3]), 1)` out of 25 in "200b", and `r round(100 - as.numeric(df_sum2[4, 3]), 1)` out of 7.5 in "300b_a" in the latest month. Should I subtract `r round(100 - as.numeric(df_sum2[6, 3]), 1)` percent decline of "rest"?
 
-Looks less incompatible with [US import price index: China, in total](https://fred.stlouisfed.org/series/CHNTOT), though volatile "34b" suggests I had better cut off high indices at certain level.
+Looks less incompatible with [US import price index: China, in total](https://fred.stlouisfed.org/series/CHNTOT).
+
+I will stop here, and put this study in the past research.
 
 EOL

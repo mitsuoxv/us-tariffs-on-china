@@ -3,19 +3,19 @@ Who pays tariffs?
 Mitsuo Shiota
 2019-05-13
 
-  - [Motivation and purpose](#motivation-and-purpose)
-  - [Libraries and functions](#libraries-and-functions)
-  - [Extract HTS 8 digit codes for “34b”, “16b”, “200b” and “300b\_a”,
+-   [Motivation and purpose](#motivation-and-purpose)
+-   [Libraries and functions](#libraries-and-functions)
+-   [Extract HTS 8 digit codes for “34b”, “16b”, “200b” and “300b\_a”,
     and 10 digit codes for
     “excl”](#extract-hts-8-digit-codes-for-34b-16b-200b-and-300b_a-and-10-digit-codes-for-excl)
-  - [Get monthly import data](#get-monthly-import-data)
-  - [Index unit price of the first half of 2018 as
+-   [Get monthly import data](#get-monthly-import-data)
+-   [Index unit price of the first half of 2018 as
     100](#index-unit-price-of-the-first-half-of-2018-as-100)
-  - [Look at the price changes from the first half of
+-   [Look at the price changes from the first half of
     2018](#look-at-the-price-changes-from-the-first-half-of-2018)
-  - [Correction](#correction)
+-   [Correction](#correction)
 
-Updated: 2021-01-08
+Updated: 2021-02-06
 
 ## Motivation and purpose
 
@@ -34,8 +34,8 @@ by tariff schedule category.
 
 Looking at [census data
 page](https://api.census.gov/data/timeseries/intltrade/imports/hs/variables.html),
-I decide to select “GEN\_VAL\_MO” as value, “CON\_QY1\_MO” as quantity1,
-and “CON\_QY2\_MO” as quantity2, though I selected “GEN\_CIF\_MO” as
+I decide to select “GEN\_VAL\_MO” as value, “GEN\_QY1\_MO” as quantity1,
+and “GEN\_QY2\_MO” as quantity2, though I selected “GEN\_CIF\_MO” as
 value in [the original analysis](README.md).
 
 ## Extract HTS 8 digit codes for “34b”, “16b”, “200b” and “300b\_a”, and 10 digit codes for “excl”
@@ -100,8 +100,8 @@ In the latest month, median price indices by category are as below.
     ## 6 rest     2020-11-01  87.6
 
 Chinese are paying 41.7 out of 25 percent in “34b”, 8.3 out of 25 in
-“16b”, 11.5 out of 25 in “200b”, and 13.7 out of 7.5 in “300b\_a” in
-the latest month. Should I subtract 12.4 percent decline of “rest”?
+“16b”, 11.5 out of 25 in “200b”, and 13.7 out of 7.5 in “300b\_a” in the
+latest month. Should I subtract 12.4 percent decline of “rest”?
 
 ## Correction
 
@@ -148,42 +148,79 @@ df_m %>%
     ## [1] 14173
 
 If unit is inconsistent over years, my method of calculation of price
-index is meaningless. Let us check ‘unit1’ column, which is supposed to
-be 3-character import unit of quantity.
+index is meaningless. Let us check whether I can get information on
+import unit of quantity.
 
 ``` r
-head(df_m_raw)
+try(
+  censusapi::getCensus(
+    name = "timeseries/intltrade/imports/hs",
+    key = keyring::key_get("census"),
+    vars = c("GEN_QY1_MO_FLAG", "UNIT_QY1", "GEN_QY2_MO_FLAG", "UNIT_QY2"),
+    time = 2020,
+    CTY_CODE = 5700,
+    COMM_LVL = "HS10"
+    )
+)
 ```
 
-    ##         time       hs10      hs8   value quantity1 unit1 quantity2 unit2
-    ## 1 2018-01-01 0106110000 01061100 3041638      1320    NA         0    NA
-    ## 2 2018-01-01 0106199195 01061991   10650       228    NA         0    NA
-    ## 3 2018-01-01 0204432000 02044320   81634     14051    NA         0    NA
-    ## 4 2018-01-01 0208100000 02081000  196370     46000    NA         0    NA
-    ## 5 2018-01-01 0208902500 02089025 1269300    243862    NA         0    NA
-    ## 6 2018-01-01 0301110020 03011100  122342         0    NA         0    NA
+    ## Error : 204, no content was returned.
+    ## See ?listCensusMetadata to learn more about valid API options.
+
+Error! OK, let us see listCensusMetadata.
 
 ``` r
-df_m_raw %>%
-  drop_na(unit1)
+hs_vars <- censusapi::listCensusMetadata(
+    name = "timeseries/intltrade/imports/hs", 
+    type = "variables")
+
+hs_vars %>% 
+  filter(str_detect(name, "UNIT"))
 ```
 
-    ## [1] time      hs10      hs8       value     quantity1 unit1     quantity2
-    ## [8] unit2    
-    ## <0 rows> (or 0-length row.names)
-
-It turns out ‘unit1’ column is all NAs. How about ‘unit2’ column?
+    ##       name                                 label  concept predicateType group
+    ## 1 UNIT_QY2 3-character Import Unit of Quantity 2 Measures        string   N/A
+    ## 2 UNIT_QY1 3-character Import Unit of Quantity 1 Measures        string   N/A
+    ##   limit required
+    ## 1     0     <NA>
+    ## 2     0     <NA>
 
 ``` r
-df_m_raw %>%
-  drop_na(unit2)
+hs_vars %>% 
+  filter(str_detect(name, "FLAG"))
 ```
 
-    ## [1] time      hs10      hs8       value     quantity1 unit1     quantity2
-    ## [8] unit2    
-    ## <0 rows> (or 0-length row.names)
+    ##              name
+    ## 1 GEN_QY2_MO_FLAG
+    ## 2 CON_QY2_YR_FLAG
+    ## 3 CON_QY2_MO_FLAG
+    ## 4 CON_QY1_YR_FLAG
+    ## 5 GEN_QY2_YR_FLAG
+    ## 6 GEN_QY1_MO_FLAG
+    ## 7 GEN_QY1_YR_FLAG
+    ## 8 CON_QY1_MO_FLAG
+    ##                                                                             label
+    ## 1                      1-character True Zero Flag for General Imports, Quantity 3
+    ## 2 1-character True Zero Flag for Year-to-Date Imports for Consumption, Quantity 2
+    ## 3                            1-character Flag Imports for Consumption, Quantity 2
+    ## 4  1-character True Zero Flag for Year-to-Date Imports for Consumption Quantity 1
+    ## 5         1-character True Zero Flag for Year-to-Date General Imports, Quantity 3
+    ## 6                      1-character True Zero Flag for General Imports, Quantity 2
+    ## 7         1-character True Zero Flag for Year-to-Date General Imports, Quantity 2
+    ## 8              1-character True Zero Flag for  Imports for Consumption Quantity 1
+    ##    concept predicateType group limit required
+    ## 1 Measures        string   N/A     0     <NA>
+    ## 2 Measures        string   N/A     0     <NA>
+    ## 3 Measures        string   N/A     0     <NA>
+    ## 4 Measures        string   N/A     0     <NA>
+    ## 5 Measures        string   N/A     0     <NA>
+    ## 6 Measures        string   N/A     0     <NA>
+    ## 7 Measures        string   N/A     0     <NA>
+    ## 8 Measures        string   N/A     0     <NA>
 
-‘unit2’ column is all NAs, too. I can’t check unit consistency.
+It is not available whether input in information about unit is required
+or not, but it looks like no input there. I can’t check unit
+consistency.
 
 As a last resort, I remove zero value and zero index, and recalculate
 below.
@@ -227,7 +264,8 @@ Chinese are paying 0.5 out of 25 percent in “34b”, 1 out of 25 in “16b”,
 month. Should I subtract 5.2 percent decline of “rest”?
 
 Looks less incompatible with [US import price index: China, in
-total](https://fred.stlouisfed.org/series/CHNTOT), though volatile “34b”
-suggests I had better cut off high indices at certain level.
+total](https://fred.stlouisfed.org/series/CHNTOT).
+
+I will stop here, and put this study in the past research.
 
 EOL

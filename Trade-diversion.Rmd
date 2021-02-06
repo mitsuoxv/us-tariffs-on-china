@@ -91,23 +91,13 @@ import <- map_dfr(c(2010, 5520, 5700, 5800, 5880), import_from_country,
 import <- import %>% 
   mutate(value = value / 1000000)
 
-# from monthly to quarterly
+# from monthly to quarterly, and fill 0
 import_q <- import %>% 
   mutate(quarter = yearquarter(time)) %>% 
   group_by(country, hs, quarter) %>% 
   summarize(value = sum(value), .groups = "drop_last") %>% 
-  ungroup()
-
-# fill 0
-import_q <- import_q %>% 
-  pivot_wider(names_from = country, values_from = value, values_fill = 0) %>% 
-  pivot_longer(!c(hs, quarter), names_to = "country", values_to = "value")
-
-# fill 0
-import_q <- import_q %>% 
-  pivot_wider(names_from = hs, values_from = value, values_fill = 0) %>% 
-  pivot_longer(!c(quarter, country), names_to = "hs", values_to = "value")
-
+  ungroup() %>% 
+  complete(country, hs, quarter, fill = list(value = 0))
 
 ```
 
@@ -125,17 +115,17 @@ import_q_diff <- import_q %>%
   mutate(value = value - value[quarter == yearquarter("2018-01-01")]) %>% 
   ungroup()
 
-# goods of whch imports from china declines in 2020 2Q by more than 200 million
+# goods of whch imports from china declines by more than 200 million
 # dollars from 2018 Q1
 hs_china_loss <- import_q_diff %>% 
   filter(country == "CHINA") %>% 
-  filter(quarter == yearquarter("2020-07-01"), value < -200) %>% 
+  filter(quarter == yearquarter("2020-10-01"), value < -200) %>% 
   pull("hs")
 
-# and imports from china in 2020 2Q still more than 500 million dollars
+# and imports from china still more than 500 million dollars
 hs_china_loss2 <- import_q %>% 
   filter(hs %in% hs_china_loss) %>% 
-  filter(quarter == yearquarter("2020-07-01"), value > 500) %>% 
+  filter(quarter == yearquarter("2020-10-01"), value > 500) %>% 
   pull("hs") %>% 
   unique()
 
@@ -167,11 +157,11 @@ names(descri_vector) <- descriptions$hs
 
 ```
 
-Most notable case is that Vietnam replaces China as a main export base of 8517 (telephone sets), probably smart phones. Smart phones are not yet imposed tariffs by the US. This replacement is caused by Samsung's strategy to expand smart phone production capacity in Vietnam, and by ZTE and Huawei losing shares in the US. 
+Most notable case is that Vietnam replaces China as a main export base of 8541 (Diodes, transistors) and 8542 (Integrated circuits).
 
 Vietnam is also advancing in 9401 (Seats) and 9403 (Other furniture).
 
-South Korea supplants China in 8523 (Recording medium).
+South Korea supplants China in 8415 (Air conditioning machines) and 8523 (Recording medium).
 
 No winners in 8708 (Auto parts).  
 

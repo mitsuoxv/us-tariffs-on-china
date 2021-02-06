@@ -3,18 +3,18 @@ US tariffs on China
 Mitsuo Shiota
 2019-04-17
 
-  - [Summary](#summary)
-  - [Libraries and functions](#libraries-and-functions)
-  - [Load tariff lists and an exclusion
+-   [Summary](#summary)
+-   [Libraries and functions](#libraries-and-functions)
+-   [Load tariff lists and an exclusion
     list](#load-tariff-lists-and-an-exclusion-list)
-  - [Get international trade data, and confirm USTR
+-   [Get international trade data, and confirm USTR
     claims](#get-international-trade-data-and-confirm-ustr-claims)
-  - [How much imports are excluded so
+-   [How much imports are excluded so
     far?](#how-much-imports-are-excluded-so-far)
-  - [Look at the Chinese share
+-   [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2021-01-08
+Updated: 2021-02-06
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
@@ -23,13 +23,15 @@ I added an analysis of who pays tariffs in [another page](Who-pays.md).
 
 ## Summary
 
-  - [Chinese shares in US imports in tariff imposed goods and others in
+-   [Chinese shares in US imports in tariff imposed goods and others in
     pdf](output/chinese-shares.pdf)
-  - [Chinese shares in HTS 8 digit imports by tariff schedule (2018) in
+-   [Chinese shares in HTS 8 digit imports by tariff schedule (2018) in
     pdf](output/chinese-shares2.pdf)
 
 I load an rdata file containing tariff lists and an exclusion list,
 which I have saved in [the separate page](Extract-hts-from-USTR.md).
+Note that I assume wrongly that granted product exclusion will never
+expire, as I can’t take in expiration information.
 
 Next, I get data via API from [Census Bureau U.S. International Trade
 Data](https://www.census.gov/foreign-trade/data/), and confirm the each
@@ -101,9 +103,9 @@ exclusions amount to 81.9 billion dollars annually.
 
 I get imports from China and total imports from January 2017 up to now,
 and calculate Chinese shares in imports in each category of “34b”,
-“16b”, “200b”, “300b\_a”, “300b\_c”, “excl”, and “rest”. “34b”,
-“16b”, “200b”, “300b\_a”, “300b\_c” are imposed tariffs effective on
-July 6 2018, August 23 2018, September 24 2018, September 1 2019 and
+“16b”, “200b”, “300b\_a”, “300b\_c”, “excl”, and “rest”. “34b”, “16b”,
+“200b”, “300b\_a”, “300b\_c” are imposed tariffs effective on July 6
+2018, August 23 2018, September 24 2018, September 1 2019 and
 (postponed) December 15 2019, respectively. “excl” is exclusion granted
 so far. “rest” is the rest.
 
@@ -140,7 +142,7 @@ What can I say from the chart below?
 
 7.  China exports declined in February 2020, due to Covid-19 turmoil.
 
-<!-- end list -->
+<!-- -->
 
     ## Warning in responseFormat(raw): NAs introduced by coercion
 

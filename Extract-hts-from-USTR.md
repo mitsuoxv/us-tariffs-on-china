@@ -3,14 +3,14 @@ Extract HTS codes from USTR site
 Mitsuo Shiota
 2019-11-08
 
-  - [Summary](#summary)
-  - [Libraries and functions](#libraries-and-functions)
-  - [Extract HTS 8 digit codes from USTR
+-   [Summary](#summary)
+-   [Libraries and functions](#libraries-and-functions)
+-   [Extract HTS 8 digit codes from USTR
     lists](#extract-hts-8-digit-codes-from-ustr-lists)
-  - [Extract HTS 10 digit codes from exclusion
+-   [Extract HTS 10 digit codes from exclusion
     lists](#extract-hts-10-digit-codes-from-exclusion-lists)
 
-Updated: 2020-11-05
+Updated: 2021-02-06
 
 ## Summary
 
@@ -19,6 +19,10 @@ codes from the USTR tariff lists (pdf format). I also extract 10 digit
 HTS codes from granted product exclusion lists. These lists can be found
 on [this USTR
 page](https://ustr.gov/issue-areas/enforcement/section-301-investigations/tariff-actions).
+
+I hear GPU price jump in February 2021 is partially due to tariff
+exclusion expiration. However, I don’t know how to reflect expiration.
+So, I assume wrongly that granted exclusion will never expire.
 
 ## Libraries and functions
 
