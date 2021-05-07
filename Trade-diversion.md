@@ -12,15 +12,15 @@ Mitsuo Shiota
 -   [Draw charts of US import changes from 2018 Q1 from each
     country](#draw-charts-of-us-import-changes-from-2018-q1-from-each-country)
 
-Updated: 2021-02-06
+Updated: 2021-05-07
 
 ## Summary
 
 US imports from China are decreasing in 2019 due to tariffs, and in 2020
-due to novel coronavirus. If trade diversion is goin on, other countries
-are replacing China. In this study, I somewhat arbitrarily choose 4
-candidate countries like Vietnam, Korea, Japan and Mexico, and check
-whether the US imports from these countries increase by HS 4 digit
+due to novel coronavirus. If trade diversion is going on, other
+countries are replacing China. In this study, I somewhat arbitrarily
+choose 4 candidate countries like Vietnam, Korea, Japan and Mexico, and
+check whether the US imports from these countries increase by HS 4 digit
 codes.
 
 ## Libraries and functions

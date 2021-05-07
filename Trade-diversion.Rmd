@@ -12,11 +12,12 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 Updated: `r Sys.Date()`
 
 ## Summary
 
-US imports from China are decreasing in 2019 due to tariffs, and in 2020 due to novel coronavirus. If trade diversion is goin on, other countries are replacing China. In this study, I somewhat arbitrarily choose 4 candidate countries like Vietnam, Korea, Japan and Mexico, and check whether the US imports from these countries increase by HS 4 digit codes.
+US imports from China are decreasing in 2019 due to tariffs, and in 2020 due to novel coronavirus. If trade diversion is going on, other countries are replacing China. In this study, I somewhat arbitrarily choose 4 candidate countries like Vietnam, Korea, Japan and Mexico, and check whether the US imports from these countries increase by HS 4 digit codes.
 
 
 ## Libraries and functions
@@ -85,7 +86,7 @@ keyring::key_set("census")
 # Download data
 # https://www.census.gov/foreign-trade/schedules/c/countryname.html
 import <- map_dfr(c(2010, 5520, 5700, 5800, 5880), import_from_country,
-                   hs_digits = 4, year = "from 2018 to 2020")
+                   hs_digits = 4, year = "from 2018 to 2021")
 
 # to million dollars
 import <- import %>% 
@@ -119,13 +120,13 @@ import_q_diff <- import_q %>%
 # dollars from 2018 Q1
 hs_china_loss <- import_q_diff %>% 
   filter(country == "CHINA") %>% 
-  filter(quarter == yearquarter("2020-10-01"), value < -200) %>% 
+  filter(quarter == yearquarter("2021-01-01"), value < -200) %>% 
   pull("hs")
 
 # and imports from china still more than 500 million dollars
 hs_china_loss2 <- import_q %>% 
   filter(hs %in% hs_china_loss) %>% 
-  filter(quarter == yearquarter("2020-10-01"), value > 500) %>% 
+  filter(quarter == yearquarter("2021-01-01"), value > 500) %>% 
   pull("hs") %>% 
   unique()
 
