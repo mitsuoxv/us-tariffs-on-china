@@ -14,7 +14,7 @@ Mitsuo Shiota
 -   [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2021-05-07
+Updated: 2021-06-09
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
@@ -84,13 +84,13 @@ OK, let us get data. Each download takes approximately half a minute.
 Using the tariff lists of 8 digit HTS codes I extracted before, I check
 if 2018 imports are really worth as much as 34, 16 and 200 billion
 dollars as USTR claims. According to my calculation, 2018 imports are
-32.1, 15.3 and 192.3 billion dollars. Ratios to the USTR claims are
-0.94, 0.96 and 0.96. Little bit smaller, but basically confirm the USTR
+32, 15.3 and 191.8 billion dollars. Ratios to the USTR claims are 0.94,
+0.95 and 0.96. Little bit smaller, but basically confirm the USTR
 claims.
 
 2018 imports in List 4 Annex A (“300b\_a”, effective on September 1,
 2019) and Annex C (“300b\_c”, scheduled to be effective on December 15,
-2019, but postponed) are 110.3 and 160.5 billion dollars respectively.
+2019, but postponed) are 110.1 and 160.4 billion dollars respectively.
 
 ## How much imports are excluded so far?
 
