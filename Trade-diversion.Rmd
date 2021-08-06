@@ -113,20 +113,20 @@ import_q <- import_q %>%
 # change value to difference with 2018 Q1
 import_q_diff <- import_q %>% 
   group_by(country, hs) %>% 
-  mutate(value = value - value[quarter == yearquarter("2018-01-01")]) %>% 
+  mutate(value = value - value[quarter == yearquarter("2018 Q1")]) %>% 
   ungroup()
 
 # goods of whch imports from china declines by more than 200 million
 # dollars from 2018 Q1
 hs_china_loss <- import_q_diff %>% 
   filter(country == "CHINA") %>% 
-  filter(quarter == yearquarter("2021-01-01"), value < -200) %>% 
+  filter(quarter == yearquarter("2021 Q2"), value < -200) %>% 
   pull("hs")
 
 # and imports from china still more than 500 million dollars
 hs_china_loss2 <- import_q %>% 
   filter(hs %in% hs_china_loss) %>% 
-  filter(quarter == yearquarter("2021-01-01"), value > 500) %>% 
+  filter(quarter == yearquarter("2021 Q2"), value > 500) %>% 
   pull("hs") %>% 
   unique()
 

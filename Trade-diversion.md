@@ -12,7 +12,7 @@ Mitsuo Shiota
 -   [Draw charts of US import changes from 2018 Q1 from each
     country](#draw-charts-of-us-import-changes-from-2018-q1-from-each-country)
 
-Updated: 2021-05-07
+Updated: 2021-08-07
 
 ## Summary
 
