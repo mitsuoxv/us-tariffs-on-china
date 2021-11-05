@@ -29,6 +29,8 @@ I use `tidyverse` and `tsibble` packages.
 library(tidyverse)
 library(tsibble)
 
+# get census_api_key
+census_api_key <- Sys.getenv("CENSUS_API_KEY")
 
 # Functions
 # get country import data by year and by specified HTS digits (1-10)
@@ -43,7 +45,7 @@ import_from_country <- function(country, hs_digits, year) {
   
   df <- censusapi::getCensus(
     name = "timeseries/intltrade/imports/hs",
-    key = keyring::key_get("census"),
+    key = census_api_key,
     vars = c("CTY_NAME", "GEN_CIF_MO", "I_COMMODITY"),
     time = year,
     CTY_CODE = country,
@@ -75,12 +77,6 @@ import_from_country <- function(country, hs_digits, year) {
 ## Download data
 
 I download US monthly imports from China, Vietnam, Korea, Japan and Mexico by HS 4 digit codes since 2017, convert to quartely, and fill 0s in gaps.
-
-```{r API_Key_input, include=FALSE}
-# Prepare API key
-keyring::key_set("census")
-
-```
 
 ```{r download_data, echo=FALSE, cache=FALSE}
 # Download data
@@ -120,13 +116,13 @@ import_q_diff <- import_q %>%
 # dollars from 2018 Q1
 hs_china_loss <- import_q_diff %>% 
   filter(country == "CHINA") %>% 
-  filter(quarter == yearquarter("2021 Q2"), value < -200) %>% 
+  filter(quarter == yearquarter("2021 Q3"), value < -200) %>% 
   pull("hs")
 
 # and imports from china still more than 500 million dollars
 hs_china_loss2 <- import_q %>% 
   filter(hs %in% hs_china_loss) %>% 
-  filter(quarter == yearquarter("2021 Q2"), value > 500) %>% 
+  filter(quarter == yearquarter("2021 Q3"), value > 500) %>% 
   pull("hs") %>% 
   unique()
 
@@ -158,13 +154,9 @@ names(descri_vector) <- descriptions$hs
 
 ```
 
-Most notable case is that Vietnam replaces China as a main export base of 8541 (Diodes, transistors) and 8542 (Integrated circuits).
+Vietnam is replacing China in 8517 (electrical apparatus for line telephony), 9401 (Seats) and 9403 (Other furniture).
 
-Vietnam is also advancing in 9401 (Seats) and 9403 (Other furniture).
-
-South Korea supplants China in 8415 (Air conditioning machines) and 8523 (Recording medium).
-
-No winners in 8708 (Auto parts).  
+South Korea supplants China in 8523 (Recording medium).
 
 ```{r draw_charts, echo=FALSE, fig.width=8, fig.height=32}
 # draw charts

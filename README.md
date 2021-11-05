@@ -14,7 +14,7 @@ Mitsuo Shiota
 -   [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2021-10-09
+Updated: 2021-11-05
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
@@ -44,9 +44,18 @@ draw a boxplot of Chinese shares in HTS 10 digit imports in 2018.
 
 ## Libraries and functions
 
-As usual, I attach tidyverse package. Although I don’t attach, I use
-keyring package to input API Key. As I have found censusapi package
+As usual, I attach tidyverse package. As I have found censusapi package
 works, I use it.
+
+Following the recommendation in [Internatinal Trade Data API User
+Guide](https://www.census.gov/foreign-trade/reference/guides/Guide%20to%20International%20Trade%20Datasets.pdf)
+provided by the US Census Bureau, I register API Key. I have added a
+line CENSUS\_API\_KEY=xxxx to my .Renviron file, and I recall it by
+`Sys.getenv("CENSUS_API_KEY")`.
+
+``` r
+census_api_key <- Sys.getenv("CENSUS_API_KEY")
+```
 
 I make functions to facilitate data transformation and acquisition.
 
@@ -63,11 +72,6 @@ df_list_excl <- tibble(
 ```
 
 ## Get international trade data, and confirm USTR claims
-
-Following the recommendation in [Internatinal Trade Data API User
-Guide](https://www.census.gov/foreign-trade/reference/guides/Guide%20to%20International%20Trade%20Datasets.pdf)
-provided by the US Census Bureau, I register API Key. keyring package
-allows me to input API Key, and use it, without making it public.
 
 I struggle with which table I should use, and reach [this
 page](https://www.census.gov/data/developers/data-sets/international-trade.html).

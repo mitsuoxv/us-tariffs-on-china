@@ -31,11 +31,17 @@ I calculate the Chinese shares on those tariff-imposed goods, excluded goods and
 
 ## Libraries and functions
 
-As usual, I attach tidyverse package. Although I don't attach, I use keyring package to input API Key. As I have found censusapi package works, I use it.
+As usual, I attach tidyverse package. As I have found censusapi package works, I use it.
 
 ```{r libraries, include=FALSE}
 library(tidyverse)
 
+```
+
+Following the recommendation in [Internatinal Trade Data API User Guide](https://www.census.gov/foreign-trade/reference/guides/Guide%20to%20International%20Trade%20Datasets.pdf) provided by the US Census Bureau, I register API Key. I have added a line CENSUS_API_KEY=xxxx to my .Renviron file, and I recall it by `Sys.getenv("CENSUS_API_KEY")`.
+
+```{r census_api_key}
+census_api_key <- Sys.getenv("CENSUS_API_KEY")
 ```
 
 I make functions to facilitate data transformation and acquisition.
@@ -61,7 +67,7 @@ sum2hs8 <- function(df) {
 import_from_country <- function(country, year) {
   df <- censusapi::getCensus(
     name = "timeseries/intltrade/imports/hs",
-    key = keyring::key_get("census"),
+    key = census_api_key,
     vars = c("GEN_CIF_MO", "I_COMMODITY"),
     time = year,
     CTY_CODE = country,
@@ -76,7 +82,7 @@ import_from_country <- function(country, year) {
 import_total <- function(year) {
   df <- censusapi::getCensus(
     name = "timeseries/intltrade/imports/hs",
-    key = keyring::key_get("census"),
+    key = census_api_key,
     vars = c("GEN_CIF_MO", "I_COMMODITY"),
     time = year,
     COMM_LVL = "HS10",
@@ -104,13 +110,6 @@ df_list_excl <- tibble(
 ```
 
 ## Get international trade data, and confirm USTR claims
-
-Following the recommendation in [Internatinal Trade Data API User Guide](https://www.census.gov/foreign-trade/reference/guides/Guide%20to%20International%20Trade%20Datasets.pdf) provided by the US Census Bureau, I register API Key. keyring package allows me to input API Key, and use it, without making it public.
-
-```{r API_Key_input, include=FALSE}
-keyring::key_set("census")
-
-```
 
 I struggle with which table I should use, and reach [this page](https://www.census.gov/data/developers/data-sets/international-trade.html). Next I struggle with which variables I should use, and reach [this page](https://api.census.gov/data/timeseries/intltrade/imports/hs/variables.html). I experiment a little, and know that GEN_CIF_MO = GEN_VAL_MO + GEN_CHA_MO. Looks like CIF basis = FOB basis + Freight, insurance and other charges. I choose GEN_CIF_MO as import value.
 

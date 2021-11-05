@@ -12,7 +12,7 @@ Mitsuo Shiota
 -   [Draw charts of US import changes from 2018 Q1 from each
     country](#draw-charts-of-us-import-changes-from-2018-q1-from-each-country)
 
-Updated: 2021-08-07
+Updated: 2021-11-05
 
 ## Summary
 
@@ -44,15 +44,9 @@ imports from China are still more than 500 million dollars.
 For the goods descriptions of HS codes, I refer to
 <https://dataweb.usitc.gov/classification/commodity-description/HTS/4>.
 
-Most notable case is that Vietnam replaces China as a main export base
-of 8541 (Diodes, transistors) and 8542 (Integrated circuits).
+Vietnam is replacing China in 8517 (electrical apparatus for line telephony), 9401 (Seats) and 9403 (Other furniture).
 
-Vietnam is also advancing in 9401 (Seats) and 9403 (Other furniture).
-
-South Korea supplants China in 8415 (Air conditioning machines) and 8523
-(Recording medium).
-
-No winners in 8708 (Auto parts).
+South Korea supplants China in 8523 (Recording medium).
 
 ![](Trade-diversion_files/figure-gfm/draw_charts-1.png)<!-- -->
 
