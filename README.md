@@ -14,7 +14,7 @@ Mitsuo Shiota
 -   [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2021-11-05
+Updated: 2021-12-08
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
