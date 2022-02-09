@@ -14,7 +14,7 @@ Mitsuo Shiota
 -   [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2022-01-08
+Updated: 2022-02-09
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
@@ -50,7 +50,7 @@ works, I use it.
 Following the recommendation in [Internatinal Trade Data API User
 Guide](https://www.census.gov/foreign-trade/reference/guides/Guide%20to%20International%20Trade%20Datasets.pdf)
 provided by the US Census Bureau, I register API Key. I have added a
-line CENSUS\_API\_KEY=xxxx to my .Renviron file, and I recall it by
+line CENSUS_API_KEY=xxxx to my .Renviron file, and I recall it by
 `Sys.getenv("CENSUS_API_KEY")`.
 
 ``` r
@@ -77,9 +77,9 @@ I struggle with which table I should use, and reach [this
 page](https://www.census.gov/data/developers/data-sets/international-trade.html).
 Next I struggle with which variables I should use, and reach [this
 page](https://api.census.gov/data/timeseries/intltrade/imports/hs/variables.html).
-I experiment a little, and know that GEN\_CIF\_MO = GEN\_VAL\_MO +
-GEN\_CHA\_MO. Looks like CIF basis = FOB basis + Freight, insurance and
-other charges. I choose GEN\_CIF\_MO as import value.
+I experiment a little, and know that GEN_CIF_MO = GEN_VAL_MO +
+GEN_CHA_MO. Looks like CIF basis = FOB basis + Freight, insurance and
+other charges. I choose GEN_CIF_MO as import value.
 
 I get to know the country code of China is 5700 from [this
 page](https://www.census.gov/foreign-trade/schedules/c/countryname.html).
@@ -92,8 +92,8 @@ dollars as USTR claims. According to my calculation, 2018 imports are
 0.95 and 0.96. Little bit smaller, but basically confirm the USTR
 claims.
 
-2018 imports in List 4 Annex A (“300b\_a”, effective on September 1,
-2019) and Annex C (“300b\_c”, scheduled to be effective on December 15,
+2018 imports in List 4 Annex A (“300b_a”, effective on September 1,
+2019) and Annex C (“300b_c”, scheduled to be effective on December 15,
 2019, but postponed) are 110.1 and 160.4 billion dollars respectively.
 
 ## How much imports are excluded so far?
@@ -107,18 +107,18 @@ exclusions amount to 81.9 billion dollars annually.
 
 I get imports from China and total imports from January 2017 up to now,
 and calculate Chinese shares in imports in each category of “34b”,
-“16b”, “200b”, “300b\_a”, “300b\_c”, “excl”, and “rest”. “34b”, “16b”,
-“200b”, “300b\_a”, “300b\_c” are imposed tariffs effective on July 6
-2018, August 23 2018, September 24 2018, September 1 2019 and
-(postponed) December 15 2019, respectively. “excl” is exclusion granted
-so far. “rest” is the rest.
+“16b”, “200b”, “300b_a”, “300b_c”, “excl”, and “rest”. “34b”, “16b”,
+“200b”, “300b_a”, “300b_c” are imposed tariffs effective on July 6 2018,
+August 23 2018, September 24 2018, September 1 2019 and (postponed)
+December 15 2019, respectively. “excl” is exclusion granted so far.
+“rest” is the rest.
 
 What can I say from the chart below?
 
 1.  Chinese shares are the lowest in 34b, next lowest in 16b, higher in
-    200b, even higher in 300b\_a and much much higer in 300b\_c, exactly
+    200b, even higher in 300b_a and much much higer in 300b_c, exactly
     the same order of imposing tariffs. Actually USTR states that they
-    separate 300b into 300b\_a and 300b\_c based on whether the Chinese
+    separate 300b into 300b_a and 300b_c based on whether the Chinese
     shares are less than 75 percent or not in [this
     page](https://ustr.gov/sites/default/files/enforcement/301Investigations/Notice_of_Modification_%28List_4A_and_List_4B%29.pdf).
     USTR tends to choose lower Chinese share goods to impose tariffs
@@ -152,10 +152,10 @@ What can I say from the chart below?
 
 ![](README_files/figure-gfm/get_data-1.png)<!-- -->
 
-To confirm the point \#1 above, I draw the distribution of 2018 Chinese
+To confirm the point #1 above, I draw the distribution of 2018 Chinese
 shares in HTS 10 digit goods by each tariff schedule category. Chinese
 shares in “excl” are much higher than “34b”, “16b” and “200b” from which
-“excl” is excluded. As the shares in “300b\_c” (postponed from the
+“excl” is excluded. As the shares in “300b_c” (postponed from the
 scheduled December 15, 2019) are much much higer than those of “excl”,
 USTR will receive massive product exclusion requests.
 
