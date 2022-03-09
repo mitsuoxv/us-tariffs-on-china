@@ -14,7 +14,7 @@ Mitsuo Shiota
 -   [Look at the Chinese share
     movements](#look-at-the-chinese-share-movements)
 
-Updated: 2022-02-09
+Updated: 2022-03-09
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
@@ -152,7 +152,7 @@ What can I say from the chart below?
 
 ![](README_files/figure-gfm/get_data-1.png)<!-- -->
 
-To confirm the point #1 above, I draw the distribution of 2018 Chinese
+To confirm the point \#1 above, I draw the distribution of 2018 Chinese
 shares in HTS 10 digit goods by each tariff schedule category. Chinese
 shares in “excl” are much higher than “34b”, “16b” and “200b” from which
 “excl” is excluded. As the shares in “300b_c” (postponed from the
