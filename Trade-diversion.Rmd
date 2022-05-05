@@ -82,7 +82,7 @@ I download US monthly imports from China, Vietnam, Korea, Japan and Mexico by HS
 # Download data
 # https://www.census.gov/foreign-trade/schedules/c/countryname.html
 import <- map_dfr(c(2010, 5520, 5700, 5800, 5880), import_from_country,
-                   hs_digits = 4, year = "from 2018 to 2021")
+                   hs_digits = 4, year = "from 2018 to 2022")
 
 # to million dollars
 import <- import %>% 
@@ -116,13 +116,13 @@ import_q_diff <- import_q %>%
 # dollars from 2018 Q1
 hs_china_loss <- import_q_diff %>% 
   filter(country == "CHINA") %>% 
-  filter(quarter == yearquarter("2021 Q4"), value < -200) %>% 
+  filter(quarter == yearquarter("2022 Q1"), value < -200) %>% 
   pull("hs")
 
 # and imports from china still more than 500 million dollars
 hs_china_loss2 <- import_q %>% 
   filter(hs %in% hs_china_loss) %>% 
-  filter(quarter == yearquarter("2021 Q4"), value > 500) %>% 
+  filter(quarter == yearquarter("2022 Q1"), value > 500) %>% 
   pull("hs") %>% 
   unique()
 
@@ -154,9 +154,9 @@ names(descri_vector) <- descriptions$hs
 
 ```
 
-Vietnam is replacing China in 8542 (electronic integrated circuits) and 9403 (Other furniture).
+South Korea, Vietnam, and Mexico have gained in 8542 (electronic integrated circuits), and Vietnam, and Mexico have gained in 9403 (Other furniture), while China has regained some lost ground from the bottom of 2019-2020.
 
-Mexico is increasing exports to the U.S. in 8415 (air conditioning machines), while South Korea is increasing in 8523 (Recording medium).
+South Korea has replaced China in 8523 (Recording medium).
 
 ```{r draw_charts, echo=FALSE, fig.width=8, fig.height=32}
 # draw charts

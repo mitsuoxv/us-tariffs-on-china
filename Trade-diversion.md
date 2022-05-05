@@ -12,7 +12,7 @@ Mitsuo Shiota
 -   [Draw charts of US import changes from 2018 Q1 from each
     country](#draw-charts-of-us-import-changes-from-2018-q1-from-each-country)
 
-Updated: 2022-02-09
+Updated: 2022-05-05
 
 ## Summary
 
@@ -44,9 +44,9 @@ imports from China are still more than 500 million dollars.
 For the goods descriptions of HS codes, I refer to
 <https://dataweb.usitc.gov/classification/commodity-description/HTS/4>.
 
-Vietnam is replacing China in 8542 (electronic integrated circuits) and 9403 (Other furniture).
+South Korea, Vietnam, and Mexico have gained in 8542 (electronic integrated circuits), and Vietnam, and Mexico have gained in 9403 (Other furniture), while China has regained some lost ground from the bottom of 2019-2020.
 
-Mexico is increasing exports to the U.S. in 8415 (air conditioning machines), while South Korea is increasing in 8523 (Recording medium).
+South Korea has replaced China in 8523 (Recording medium).
 
 ![](Trade-diversion_files/figure-gfm/draw_charts-1.png)<!-- -->
 
