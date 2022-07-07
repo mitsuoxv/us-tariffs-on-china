@@ -236,8 +236,11 @@ df_total %>%
     share = china / total * 100,
     .groups = "drop_last"
   ) %>% 
+  mutate(taxed = if_else(category %in% c("34b", "16b", "200b", "300b_a"),
+                    "Tariffs levied by the Trump Administration", "No tariffs")) %>% 
   ggplot(aes(x = time, y = share, color = fct_reorder2(category, time, share))) +
   geom_line(size = 1) +
+  facet_wrap(vars(taxed), ncol = 1, scales = "free_y") +
   labs(
     title = "Chinese shares in US imports",
     x = NULL,
@@ -246,17 +249,15 @@ df_total %>%
   )
 
 ggsave(filename = "output/chinese-shares.pdf",
-       width = 6, height = 6, units = "in", dpi = 300)
+       width = 6, height = 8, units = "in", dpi = 300)
 
 ```
 
 To confirm the point #1 above, I draw the distribution of 2018 Chinese shares in HTS 10 digit goods by each tariff schedule category. Chinese shares in "excl" are much higher than "34b", "16b" and "200b" from which "excl" is excluded. As the shares in "300b_c" (postponed from the scheduled December 15, 2019) are much much higer than those of "excl", USTR will receive massive product exclusion requests.
 
 ```{r boxplot, echo=FALSE, warning=FALSE, fig.width=6, fig.height=6}
-df_total$category <- factor(df_total$category, 
-                            levels = c("34b", "16b", "200b", "300b_a", "300b_c", "excl","rest"))
-
 df_total %>% 
+  mutate(category = factor(category, levels = c("34b", "16b", "200b", "300b_a", "300b_c", "excl","rest"))) %>% 
   filter(time >= "2018-01-01", time <= "2018-12-01") %>% 
   group_by(category, hs10) %>% 
   summarize(
