@@ -3,18 +3,23 @@ US tariffs on China
 Mitsuo Shiota
 2019-04-17
 
--   [Summary](#summary)
--   [Libraries and functions](#libraries-and-functions)
--   [Load tariff lists and an exclusion
-    list](#load-tariff-lists-and-an-exclusion-list)
--   [Get international trade data, and confirm USTR
-    claims](#get-international-trade-data-and-confirm-ustr-claims)
--   [How much imports are excluded so
-    far?](#how-much-imports-are-excluded-so-far)
--   [Look at the Chinese share
-    movements](#look-at-the-chinese-share-movements)
+-   <a href="#summary" id="toc-summary">Summary</a>
+-   <a href="#libraries-and-functions"
+    id="toc-libraries-and-functions">Libraries and functions</a>
+-   <a href="#load-tariff-lists-and-an-exclusion-list"
+    id="toc-load-tariff-lists-and-an-exclusion-list">Load tariff lists and
+    an exclusion list</a>
+-   <a href="#get-international-trade-data-and-confirm-ustr-claims"
+    id="toc-get-international-trade-data-and-confirm-ustr-claims">Get
+    international trade data, and confirm USTR claims</a>
+-   <a href="#how-much-imports-are-excluded-so-far"
+    id="toc-how-much-imports-are-excluded-so-far">How much imports are
+    excluded so far?</a>
+-   <a href="#look-at-the-chinese-share-movements"
+    id="toc-look-at-the-chinese-share-movements">Look at the Chinese share
+    movements</a>
 
-Updated: 2022-07-08
+Updated: 2022-08-05
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).

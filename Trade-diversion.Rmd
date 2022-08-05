@@ -99,7 +99,9 @@ import_q <- import %>%
 ```
 
 
-## Choose HS codes of which imports from China declined significantly from 2018 Q1
+## Choose HS codes 
+
+I choose imports from China which once declined from 2018 Q1 by more than 500 million dollars.
 
 ```{r china_loss, echo=FALSE}
 # tsibble
@@ -112,23 +114,14 @@ import_q_diff <- import_q %>%
   mutate(value = value - value[quarter == yearquarter("2018 Q1")]) %>% 
   ungroup()
 
-# goods of whch imports from china declines by more than 200 million
+# goods of whch imports from china once declined by more than 500 million
 # dollars from 2018 Q1
 hs_china_loss <- import_q_diff %>% 
   filter(country == "CHINA") %>% 
-  filter(quarter == yearquarter("2022 Q1"), value < -200) %>% 
+  filter(value < -500) %>%
+  distinct(hs) %>% 
   pull("hs")
-
-# and imports from china still more than 500 million dollars
-hs_china_loss2 <- import_q %>% 
-  filter(hs %in% hs_china_loss) %>% 
-  filter(quarter == yearquarter("2022 Q1"), value > 500) %>% 
-  pull("hs") %>% 
-  unique()
-
 ```
-
-I first choose HS codes of which imports from China declined by more than 200 million dollars from 2018 Q1. Next I choose HS codes of which imports from China are still more than 500 million dollars.
 
 ## Draw charts of US import changes from 2018 Q1 from each country
 
@@ -154,14 +147,11 @@ names(descri_vector) <- descriptions$hs
 
 ```
 
-South Korea, Vietnam, and Mexico have gained in 8542 (electronic integrated circuits), and Vietnam, and Mexico have gained in 9403 (Other furniture), while China has regained some lost ground from the bottom of 2019-2020.
-
-South Korea has replaced China in 8523 (Recording medium).
 
 ```{r draw_charts, echo=FALSE, fig.width=8, fig.height=32}
 # draw charts
 import_q_diff %>% 
-  filter(hs %in% hs_china_loss2) %>% 
+  filter(hs %in% hs_china_loss) %>% 
   ggplot(aes(x = quarter, y = value, color = country)) +
   geom_hline(yintercept = 0, size = 2, color = "white") +
   geom_line() +

@@ -185,7 +185,7 @@ What can I say from the chart below?
 1. China exports declined in February 2020, due to Covid-19 turmoil.
 
 
-```{r get_data, echo=FALSE, cache=FALSE, fig.width=6, fig.height=6}
+```{r get_data, echo=FALSE, cache=FALSE, fig.width=6, fig.height=8}
 # Total import
 # get data, takes time
 df_total <- import_total("from 2017 to 2022")
@@ -240,6 +240,7 @@ df_total %>%
                     "Tariffs levied by the Trump Administration", "No tariffs")) %>% 
   ggplot(aes(x = time, y = share, color = fct_reorder2(category, time, share))) +
   geom_line(size = 1) +
+  expand_limits(y = 0) +
   facet_wrap(vars(taxed), ncol = 1, scales = "free_y") +
   labs(
     title = "Chinese shares in US imports",

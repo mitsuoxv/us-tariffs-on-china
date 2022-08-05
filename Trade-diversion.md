@@ -3,16 +3,17 @@ Who replaces China in US imports?
 Mitsuo Shiota
 2019-08-06
 
--   [Summary](#summary)
--   [Libraries and functions](#libraries-and-functions)
--   [Download data](#download-data)
--   [Choose HS codes of which imports from China declined significantly
-    from 2018
-    Q1](#choose-hs-codes-of-which-imports-from-china-declined-significantly-from-2018-q1)
--   [Draw charts of US import changes from 2018 Q1 from each
-    country](#draw-charts-of-us-import-changes-from-2018-q1-from-each-country)
+-   <a href="#summary" id="toc-summary">Summary</a>
+-   <a href="#libraries-and-functions"
+    id="toc-libraries-and-functions">Libraries and functions</a>
+-   <a href="#download-data" id="toc-download-data">Download data</a>
+-   <a href="#choose-hs-codes" id="toc-choose-hs-codes">Choose HS codes</a>
+-   <a
+    href="#draw-charts-of-us-import-changes-from-2018-q1-from-each-country"
+    id="toc-draw-charts-of-us-import-changes-from-2018-q1-from-each-country">Draw
+    charts of US import changes from 2018 Q1 from each country</a>
 
-Updated: 2022-05-05
+Updated: 2022-08-05
 
 ## Summary
 
@@ -33,20 +34,15 @@ I download US monthly imports from China, Vietnam, Korea, Japan and
 Mexico by HS 4 digit codes since 2017, convert to quartely, and fill 0s
 in gaps.
 
-## Choose HS codes of which imports from China declined significantly from 2018 Q1
+## Choose HS codes
 
-I first choose HS codes of which imports from China declined by more
-than 200 million dollars from 2018 Q1. Next I choose HS codes of which
-imports from China are still more than 500 million dollars.
+I choose imports from China which once declined from 2018 Q1 by more
+than 500 million dollars.
 
 ## Draw charts of US import changes from 2018 Q1 from each country
 
 For the goods descriptions of HS codes, I refer to
 <https://dataweb.usitc.gov/classification/commodity-description/HTS/4>.
-
-South Korea, Vietnam, and Mexico have gained in 8542 (electronic integrated circuits), and Vietnam, and Mexico have gained in 9403 (Other furniture), while China has regained some lost ground from the bottom of 2019-2020.
-
-South Korea has replaced China in 8523 (Recording medium).
 
 ![](Trade-diversion_files/figure-gfm/draw_charts-1.png)<!-- -->
 
