@@ -13,7 +13,7 @@ Mitsuo Shiota
     id="toc-draw-charts-of-us-import-changes-from-2018-q1-from-each-country">Draw
     charts of US import changes from 2018 Q1 from each country</a>
 
-Updated: 2022-08-05
+Updated: 2022-11-04
 
 ## Summary
 
