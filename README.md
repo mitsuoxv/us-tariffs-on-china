@@ -3,23 +3,23 @@ US tariffs on China
 Mitsuo Shiota
 2019-04-17
 
--   <a href="#summary" id="toc-summary">Summary</a>
--   <a href="#libraries-and-functions"
-    id="toc-libraries-and-functions">Libraries and functions</a>
--   <a href="#load-tariff-lists-and-an-exclusion-list"
-    id="toc-load-tariff-lists-and-an-exclusion-list">Load tariff lists and
-    an exclusion list</a>
--   <a href="#get-international-trade-data-and-confirm-ustr-claims"
-    id="toc-get-international-trade-data-and-confirm-ustr-claims">Get
-    international trade data, and confirm USTR claims</a>
--   <a href="#how-much-imports-are-excluded-so-far"
-    id="toc-how-much-imports-are-excluded-so-far">How much imports are
-    excluded so far?</a>
--   <a href="#look-at-the-chinese-share-movements"
-    id="toc-look-at-the-chinese-share-movements">Look at the Chinese share
-    movements</a>
+- <a href="#summary" id="toc-summary">Summary</a>
+- <a href="#libraries-and-functions"
+  id="toc-libraries-and-functions">Libraries and functions</a>
+- <a href="#load-tariff-lists-and-an-exclusion-list"
+  id="toc-load-tariff-lists-and-an-exclusion-list">Load tariff lists and
+  an exclusion list</a>
+- <a href="#get-international-trade-data-and-confirm-ustr-claims"
+  id="toc-get-international-trade-data-and-confirm-ustr-claims">Get
+  international trade data, and confirm USTR claims</a>
+- <a href="#how-much-imports-are-excluded-so-far"
+  id="toc-how-much-imports-are-excluded-so-far">How much imports are
+  excluded so far?</a>
+- <a href="#look-at-the-chinese-share-movements"
+  id="toc-look-at-the-chinese-share-movements">Look at the Chinese share
+  movements</a>
 
-Updated: 2022-11-04
+Updated: 2022-12-07
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
@@ -28,10 +28,10 @@ I added an analysis of who pays tariffs in [another page](Who-pays.md).
 
 ## Summary
 
--   [Chinese shares in US imports in tariff imposed goods and others in
-    pdf](output/chinese-shares.pdf)
--   [Chinese shares in HTS 8 digit imports by tariff schedule (2018) in
-    pdf](output/chinese-shares2.pdf)
+- [Chinese shares in US imports in tariff imposed goods and others in
+  pdf](output/chinese-shares.pdf)
+- [Chinese shares in HTS 8 digit imports by tariff schedule (2018) in
+  pdf](output/chinese-shares2.pdf)
 
 I load an rdata file containing tariff lists and an exclusion list,
 which I have saved in [the separate page](Extract-hts-from-USTR.md).
@@ -154,6 +154,9 @@ What can I say from the chart below?
 <!-- -->
 
     ## Warning in responseFormat(raw): NAs introduced by coercion
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
 
 ![](README_files/figure-gfm/get_data-1.png)<!-- -->
 
