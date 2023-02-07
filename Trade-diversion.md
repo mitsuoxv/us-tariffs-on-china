@@ -3,17 +3,17 @@ Who replaces China in US imports?
 Mitsuo Shiota
 2019-08-06
 
--   <a href="#summary" id="toc-summary">Summary</a>
--   <a href="#libraries-and-functions"
-    id="toc-libraries-and-functions">Libraries and functions</a>
--   <a href="#download-data" id="toc-download-data">Download data</a>
--   <a href="#choose-hs-codes" id="toc-choose-hs-codes">Choose HS codes</a>
--   <a
-    href="#draw-charts-of-us-import-changes-from-2018-q1-from-each-country"
-    id="toc-draw-charts-of-us-import-changes-from-2018-q1-from-each-country">Draw
-    charts of US import changes from 2018 Q1 from each country</a>
+- <a href="#summary" id="toc-summary">Summary</a>
+- <a href="#libraries-and-functions"
+  id="toc-libraries-and-functions">Libraries and functions</a>
+- <a href="#download-data" id="toc-download-data">Download data</a>
+- <a href="#choose-hs-codes" id="toc-choose-hs-codes">Choose HS codes</a>
+- <a
+  href="#draw-charts-of-us-import-changes-from-2018-q1-from-each-country"
+  id="toc-draw-charts-of-us-import-changes-from-2018-q1-from-each-country">Draw
+  charts of US import changes from 2018 Q1 from each country</a>
 
-Updated: 2022-11-04
+Updated: 2023-02-08
 
 ## Summary
 
@@ -43,6 +43,9 @@ than 500 million dollars.
 
 For the goods descriptions of HS codes, I refer to
 <https://dataweb.usitc.gov/classification/commodity-description/HTS/4>.
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
 
 ![](Trade-diversion_files/figure-gfm/draw_charts-1.png)<!-- -->
 

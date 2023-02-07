@@ -19,7 +19,7 @@ Mitsuo Shiota
   id="toc-look-at-the-chinese-share-movements">Look at the Chinese share
   movements</a>
 
-Updated: 2023-01-06
+Updated: 2023-02-08
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
@@ -154,6 +154,11 @@ What can I say from the chart below?
 <!-- -->
 
     ## Warning in responseFormat(raw): NAs introduced by coercion
+
+    ## Warning in left_join(., df_list_200b, by = "hs8"): Each row in `x` is expected to match at most 1 row in `y`.
+    ## ℹ Row 1033745 of `x` matches multiple rows.
+    ## ℹ If multiple matches are expected, set `multiple = "all"` to silence this
+    ##   warning.
 
     ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
     ## ℹ Please use `linewidth` instead.
