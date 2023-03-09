@@ -386,6 +386,23 @@ exclusion_list[[35]] <- extract_hts(
 I save tariff lists of "34b", "16b", "200b", "300b_a" and "300b_c", and a granted product exclusion list in an rdata file.
 
 ```{r save}
+# remove double
+df_list_34b <- df_list_34b |> 
+  distinct(trf_34b, hs8)
+
+df_list_16b <- df_list_16b |> 
+  distinct(trf_16b, hs8)
+
+df_list_200b <- df_list_200b |> 
+  distinct(trf_200b, hs8)
+
+df_list_300b_a <- df_list_300b_a |> 
+  distinct(trf_300b_a, hs8)
+
+df_list_300b_c <- df_list_300b_c |> 
+  distinct(trf_300b_c, hs8)
+
+# save
 save(df_list_34b, df_list_16b, df_list_200b,
      df_list_300b_a, df_list_300b_c, exclusion_list, 
      file = "data/tariff_list.rdata")

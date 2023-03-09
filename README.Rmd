@@ -117,7 +117,7 @@ I get to know the country code of China is 5700 from [this page](https://www.cen
 
 ```{r china_2018, echo=FALSE, warning=FALSE, cache=FALSE}
 df_china <- import_from_country(country = 5700,
-                              year = "from 2017 to 2022")
+                              year = "from 2017 to 2023")
 
 df2018 <- df_china %>% 
   filter(time >= "2018-01-01", time <= "2018-12-01")
@@ -188,11 +188,11 @@ What can I say from the chart below?
 ```{r get_data, echo=FALSE, cache=FALSE, fig.width=6, fig.height=8}
 # Total import
 # get data, takes time
-df_total <- import_total("from 2017 to 2022")
+df_total <- import_total("from 2017 to 2023")
 
 # value.x as total, value.y as china
 df_total <- df_total %>% 
-  left_join(df_china, by = c("hs10", "time")) %>% 
+left_join(df_china, by = c("hs10", "time")) %>% 
   select(-hs8.y) %>% 
   rename(hs8 = hs8.x)
 
@@ -239,7 +239,7 @@ df_total %>%
   mutate(taxed = if_else(category %in% c("34b", "16b", "200b", "300b_a"),
                     "Tariffs levied by the Trump Administration", "No tariffs")) %>% 
   ggplot(aes(x = time, y = share, color = fct_reorder2(category, time, share))) +
-  geom_line(size = 1) +
+geom_line(linewidth = 1) +
   expand_limits(y = 0) +
   facet_wrap(vars(taxed), ncol = 1, scales = "free_y") +
   labs(
