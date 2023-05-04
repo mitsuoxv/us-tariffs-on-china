@@ -82,7 +82,7 @@ I download US monthly imports from China, Vietnam, Korea, Japan and Mexico by HS
 # Download data
 # https://www.census.gov/foreign-trade/schedules/c/countryname.html
 import <- map_dfr(c(2010, 5520, 5700, 5800, 5880), import_from_country,
-                   hs_digits = 4, year = "from 2018 to 2022")
+                   hs_digits = 4, year = "from 2018 to 2023")
 
 # to million dollars
 import <- import %>% 

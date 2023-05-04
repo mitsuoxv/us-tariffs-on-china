@@ -13,7 +13,7 @@ Mitsuo Shiota
   id="toc-draw-charts-of-us-import-changes-from-2018-q1-from-each-country">Draw
   charts of US import changes from 2018 Q1 from each country</a>
 
-Updated: 2023-02-08
+Updated: 2023-05-05
 
 ## Summary
 
@@ -46,6 +46,9 @@ For the goods descriptions of HS codes, I refer to
 
     ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
     ## ℹ Please use `linewidth` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
 
 ![](Trade-diversion_files/figure-gfm/draw_charts-1.png)<!-- -->
 

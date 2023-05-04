@@ -19,7 +19,7 @@ Mitsuo Shiota
   id="toc-look-at-the-chinese-share-movements">Look at the Chinese share
   movements</a>
 
-Updated: 2023-04-06
+Updated: 2023-05-05
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
