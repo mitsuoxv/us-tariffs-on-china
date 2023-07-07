@@ -176,14 +176,13 @@ What can I say from the chart below?
 
 1. In 200b, I can see the small same pattern, but see bigger rise in December 2018 just before the tariff rates were scheduled to rise from 10 to 25 percent, and bigger decline thereafter. Looks like importers care little of 10 percent, but care much of 25 percent.
 
-1. In the tariff imposed goods, Chinese shares are declining. This means other countries' shares are rising. Trade diversion is going on.
-
 1. Seasonality is observed. Chinese shares fall around March every year, as Chinese take long vacations when their New Year begins around February.
-
-1. Chinese shares in "excl" have declined. We will see recovery after exclusion.
 
 1. China exports declined in February 2020, due to Covid-19 turmoil.
 
+1. In the tariff imposed goods, Chinese shares are declining. This means other countries' shares are rising. Trade diversion is going on. However, there is a caveat.
+
+1. There is a gap between the US data and the Chinese data, probably because importers want to avoid tariffs. (I was impressed by [a tweet by Brad Setser](https://twitter.com/Brad_Setser/status/1667958832667021312)) As I rely on the US data here, China's share in the US imports may be underestimated.
 
 ```{r get_data, echo=FALSE, cache=FALSE, fig.width=6, fig.height=8}
 # Total import

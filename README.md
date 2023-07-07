@@ -3,23 +3,18 @@ US tariffs on China
 Mitsuo Shiota
 2019-04-17
 
-- <a href="#summary" id="toc-summary">Summary</a>
-- <a href="#libraries-and-functions"
-  id="toc-libraries-and-functions">Libraries and functions</a>
-- <a href="#load-tariff-lists-and-an-exclusion-list"
-  id="toc-load-tariff-lists-and-an-exclusion-list">Load tariff lists and
-  an exclusion list</a>
-- <a href="#get-international-trade-data-and-confirm-ustr-claims"
-  id="toc-get-international-trade-data-and-confirm-ustr-claims">Get
-  international trade data, and confirm USTR claims</a>
-- <a href="#how-much-imports-are-excluded-so-far"
-  id="toc-how-much-imports-are-excluded-so-far">How much imports are
-  excluded so far?</a>
-- <a href="#look-at-the-chinese-share-movements"
-  id="toc-look-at-the-chinese-share-movements">Look at the Chinese share
-  movements</a>
+- [Summary](#summary)
+- [Libraries and functions](#libraries-and-functions)
+- [Load tariff lists and an exclusion
+  list](#load-tariff-lists-and-an-exclusion-list)
+- [Get international trade data, and confirm USTR
+  claims](#get-international-trade-data-and-confirm-ustr-claims)
+- [How much imports are excluded so
+  far?](#how-much-imports-are-excluded-so-far)
+- [Look at the Chinese share
+  movements](#look-at-the-chinese-share-movements)
 
-Updated: 2023-05-05
+Updated: 2023-07-08
 
 I separated the codes of extracting HTS from USTR site to [another
 page](Extract-hts-from-USTR.md).
@@ -138,18 +133,22 @@ What can I say from the chart below?
     from 10 to 25 percent, and bigger decline thereafter. Looks like
     importers care little of 10 percent, but care much of 25 percent.
 
-4.  In the tariff imposed goods, Chinese shares are declining. This
-    means other countries’ shares are rising. Trade diversion is going
-    on.
-
-5.  Seasonality is observed. Chinese shares fall around March every
+4.  Seasonality is observed. Chinese shares fall around March every
     year, as Chinese take long vacations when their New Year begins
     around February.
 
-6.  Chinese shares in “excl” have declined. We will see recovery after
-    exclusion.
+5.  China exports declined in February 2020, due to Covid-19 turmoil.
 
-7.  China exports declined in February 2020, due to Covid-19 turmoil.
+6.  In the tariff imposed goods, Chinese shares are declining. This
+    means other countries’ shares are rising. Trade diversion is going
+    on. However, there is a caveat.
+
+7.  There is a gap between the US data and the Chinese data, probably
+    because importers want to avoid tariffs. (I was impressed by [a
+    tweet by Brad
+    Setser](https://twitter.com/Brad_Setser/status/1667958832667021312))
+    As I rely on the US data here, China’s share in the US imports may
+    be underestimated.
 
 <!-- -->
 
