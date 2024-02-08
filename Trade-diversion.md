@@ -3,17 +3,14 @@ Who replaces China in US imports?
 Mitsuo Shiota
 2019-08-06
 
-- <a href="#summary" id="toc-summary">Summary</a>
-- <a href="#libraries-and-functions"
-  id="toc-libraries-and-functions">Libraries and functions</a>
-- <a href="#download-data" id="toc-download-data">Download data</a>
-- <a href="#choose-hs-codes" id="toc-choose-hs-codes">Choose HS codes</a>
-- <a
-  href="#draw-charts-of-us-import-changes-from-2018-q1-from-each-country"
-  id="toc-draw-charts-of-us-import-changes-from-2018-q1-from-each-country">Draw
-  charts of US import changes from 2018 Q1 from each country</a>
+- [Summary](#summary)
+- [Libraries and functions](#libraries-and-functions)
+- [Download data](#download-data)
+- [Choose HS codes](#choose-hs-codes)
+- [Draw charts of US import changes from 2018 Q1 from each
+  country](#draw-charts-of-us-import-changes-from-2018-q1-from-each-country)
 
-Updated: 2023-05-05
+Updated: 2024-02-08
 
 ## Summary
 
