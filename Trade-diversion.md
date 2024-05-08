@@ -10,7 +10,7 @@ Mitsuo Shiota
 - [Draw charts of US import changes from 2018 Q1 from each
   country](#draw-charts-of-us-import-changes-from-2018-q1-from-each-country)
 
-Updated: 2024-02-08
+Updated: 2024-05-08
 
 ## Summary
 
@@ -40,12 +40,6 @@ than 500 million dollars.
 
 For the goods descriptions of HS codes, I refer to
 <https://dataweb.usitc.gov/classification/commodity-description/HTS/4>.
-
-    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-    ## ℹ Please use `linewidth` instead.
-    ## This warning is displayed once every 8 hours.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-    ## generated.
 
 ![](Trade-diversion_files/figure-gfm/draw_charts-1.png)<!-- -->
 
